@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#062615" />
+    <meta name="theme-color" content="#050817" />
     <meta
       name="description"
-      content="Yuvaan's 7th Birthday World Cup Party RSVP site. Scan, RSVP, count down to kick off, and upload party photos after the match."
+      content="Yuvaan's 7th Birthday World Cup Party RSVP site with countdown, penalty game, country teams, player cards, live squad, and after party photos."
     />
-    <title>Yuvaan's 7th Birthday World Cup Party</title>
+    <title>Yuvaan World Cup 2026 Birthday Party</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&family=Orbitron:wght@600;700;800;900&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -21,273 +21,273 @@
 
     <div class="stadium-intro" id="stadium-intro" aria-label="Stadium intro">
       <div class="intro-card">
-        <div class="intro-lights" aria-hidden="true"></div>
-        <p class="section-label">Player tunnel</p>
-        <h1>Enter Yuvaan Stadium</h1>
-        <p>Tap to walk out, hear the crowd, and start the birthday match.</p>
-        <button class="button button-primary" id="enter-stadium" type="button">Enter the stadium ⚽</button>
+        <div class="intro-scan">VIP TICKET SCAN</div>
+        <h1>Access Granted</h1>
+        <p>Welcome to Yuvaan World Cup 2026. Tap to enter the birthday stadium.</p>
+        <button class="btn btn-gold" id="enter-stadium" type="button">Enter stadium</button>
       </div>
     </div>
 
     <div class="goal-banner" id="goal-banner" aria-live="polite">GOOOAAAL!</div>
 
-    <header class="hero" id="top">
-      <div class="stadium-lights" aria-hidden="true"></div>
-      <nav class="nav" aria-label="Primary navigation">
-        <a class="brand" href="#top" aria-label="Yuvaan birthday home">
+    <div class="app-shell" id="top">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="Yuvaan World Cup home">
           <span class="brand-ball">⚽</span>
-          <span>yuvi.ca</span>
+          <span><strong>YUVAAN</strong><small>World Cup 2026</small></span>
         </a>
-        <div class="nav-links">
-          <a href="#game">Game</a>
-          <a href="#rsvp">RSVP</a>
+
+        <nav class="desktop-nav" aria-label="Primary navigation">
+          <a href="#top">Home</a>
+          <a href="#teams">Teams</a>
+          <a href="#schedule">Schedule</a>
           <a href="#squad">Squad</a>
-          <a href="#photos">Photos</a>
+          <a href="#photos">Gallery</a>
+          <a href="#trophy-room">Trophy Room</a>
+        </nav>
+
+        <div class="top-pills" aria-hidden="true">
+          <span>🔊</span>
+          <span>EN</span>
         </div>
-      </nav>
+      </header>
 
-      <section class="hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">You are invited to</p>
-          <h1>
-            Yuvaan's
-            <span>7th Birthday</span>
-          </h1>
-          <p class="subtitle">World Cup Party</p>
-          <p class="tagline">One day. One champion. One legend.</p>
+      <div class="quick-rsvp-bar" aria-label="Quick RSVP">
+        <div>
+          <strong>Ready to join Team Yuvaan?</strong>
+          <span>RSVP is the main action. It saves your player card, team and guest count.</span>
+        </div>
+        <button class="btn btn-gold open-rsvp" type="button">RSVP Now</button>
+      </div>
 
-          <div class="hero-actions">
-            <a class="button button-primary" href="#game">Play then RSVP</a>
-            <a class="button button-secondary" href="https://www.google.com/maps/search/?api=1&query=Rain%20or%20Shine%20Play%20Centre%2055%20Broadway%20St%20Tillsonburg%20ON%20N4G%203P4" target="_blank" rel="noreferrer">Open map</a>
+      <div class="flag-ribbon" aria-label="World Cup flags">
+        <span>🇦🇷</span><span>🇧🇷</span><span>🇵🇹</span><span>🇫🇷</span><span>🇩🇪</span><span>🇪🇸</span><span>🏴</span><span>🇯🇵</span><span>🇰🇷</span><span>🇳🇱</span><span>🇭🇷</span><span>🇲🇽</span><span>🇺🇸</span><span>🇨🇦</span><span>🇲🇦</span><span>🇮🇹</span>
+      </div>
+
+      <main class="dashboard">
+        <section class="panel hero-panel" id="home">
+          <img class="hero-boy" src="/assets/hero-boy.png" alt="Cartoon soccer player" />
+          <img class="hero-trophy" src="/assets/hero-trophy.png" alt="Golden birthday trophy" />
+
+          <div class="hero-copy">
+            <p class="welcome-stars">★ ★ Welcome to ★ ★</p>
+            <h1>YUVAAN</h1>
+            <h2>World Cup <span>2026</span></h2>
+            <p class="tagline">The ultimate birthday celebration</p>
+
+            <div class="match-strip" id="schedule" aria-label="Birthday party details">
+              <div><span>📅</span><small>Matchday</small><strong>Saturday<br />June 6, 2026</strong></div>
+              <div><span>⏱️</span><small>Kickoff</small><strong>2:00 PM</strong></div>
+              <div><span>📍</span><small>Venue</small><strong>Rain or Shine<br />Play Centre</strong></div>
+            </div>
+
+            <div class="hero-actions">
+              <button class="btn btn-gold open-rsvp" type="button">RSVP Now</button>
+              <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=Rain%20or%20Shine%20Play%20Centre%2055%20Broadway%20St%20Tillsonburg%20ON%20N4G%203P4" target="_blank" rel="noreferrer">Open map</a>
+            </div>
+            <p class="scan-note">Scan QR to enter</p>
           </div>
-        </div>
+        </section>
 
-        <aside class="ticket-card" aria-label="VIP ticket details">
-          <p class="ticket-top">Admit one</p>
-          <div class="ticket-body">
-            <p class="vip">VIP Ticket</p>
-            <h2>World Cup 2026</h2>
-            <div class="ticket-row">
-              <span>Player</span>
-              <strong>Yuvaan</strong>
-            </div>
-            <div class="ticket-row">
-              <span>Jersey No.</span>
-              <strong>07</strong>
-            </div>
-            <div class="ticket-row">
-              <span>Team</span>
-              <strong>Legend 07</strong>
-            </div>
-            <div class="ticket-row">
-              <span>Mission</span>
-              <strong>Celebrate</strong>
-            </div>
+        <aside class="panel countdown-panel">
+          <div class="panel-heading"><span>⏱️</span><h2>Kickoff in</h2></div>
+          <div class="countdown" id="countdown" aria-live="polite">
+            <div><strong id="days">00</strong><span>Days</span></div>
+            <div><strong id="hours">00</strong><span>Hours</span></div>
+            <div><strong id="minutes">00</strong><span>Mins</span></div>
+            <div><strong id="seconds">00</strong><span>Secs</span></div>
           </div>
         </aside>
-      </section>
-    </header>
 
-    <main>
-      <section class="countdown-section" aria-labelledby="countdown-title">
-        <div class="section-label">Kick off countdown</div>
-        <h2 id="countdown-title">The match starts soon</h2>
-        <div class="countdown" id="countdown" aria-live="polite">
-          <div><strong id="days">00</strong><span>Days</span></div>
-          <div><strong id="hours">00</strong><span>Hours</span></div>
-          <div><strong id="minutes">00</strong><span>Minutes</span></div>
-          <div><strong id="seconds">00</strong><span>Seconds</span></div>
-        </div>
-      </section>
-
-      <section class="details" aria-label="Party details">
-        <article class="detail-card">
-          <span class="detail-icon">📅</span>
-          <p>Date</p>
-          <h3>Saturday, June 6, 2026</h3>
-        </article>
-        <article class="detail-card">
-          <span class="detail-icon">⏱️</span>
-          <p>Kick off</p>
-          <h3>2:00 PM</h3>
-        </article>
-        <article class="detail-card">
-          <span class="detail-icon">🏟️</span>
-          <p>Venue</p>
-          <h3>Rain or Shine Play Centre</h3>
-          <span>55 Broadway St, Tillsonburg, ON N4G 3P4</span>
-        </article>
-        <article class="detail-card">
-          <span class="detail-icon">🏆</span>
-          <p>Dress code</p>
-          <h3>Jersey on</h3>
-          <span>Game face ready</span>
-        </article>
-      </section>
-
-
-      <section class="game-section" id="game" aria-labelledby="game-title">
-        <div class="section-label">Penalty challenge</div>
-        <h2 id="game-title">Score before you RSVP</h2>
-        <p class="section-copy">Pick a corner, take the shot, and unlock the team sheet like a champion.</p>
-        <div class="penalty-game" aria-live="polite">
-          <div class="goal-net">
-            <button type="button" class="shot-target" data-shot="left">Top left</button>
-            <button type="button" class="shot-target" data-shot="middle">Middle</button>
-            <button type="button" class="shot-target" data-shot="right">Top right</button>
-            <div class="goalie" id="goalie">🧤</div>
-            <div class="ball" id="game-ball">⚽</div>
+        <section class="panel team-panel" id="teams">
+          <div class="panel-heading"><span>👥</span><h2>Choose your team</h2></div>
+          <div class="team-card-grid" role="group" aria-label="Team choices">
+            <button class="team-card-button argentina" type="button" data-team="Argentina FC" aria-pressed="false">
+              <span class="team-flag">🇦🇷</span><strong>Argentina FC</strong><em data-team-live="Argentina FC">0 players</em>
+            </button>
+            <button class="team-card-button brazil is-selected" type="button" data-team="Brazil FC" aria-pressed="true">
+              <span class="team-flag">🇧🇷</span><strong>Brazil FC</strong><em data-team-live="Brazil FC">0 players</em>
+            </button>
+            <button class="team-card-button france" type="button" data-team="France FC" aria-pressed="false">
+              <span class="team-flag">🇫🇷</span><strong>France FC</strong><em data-team-live="France FC">0 players</em>
+            </button>
           </div>
-          <div class="game-controls">
-            <p id="game-status">Choose your corner and shoot!</p>
-            <button type="button" class="button button-secondary" id="reset-game">Reset shot</button>
-          </div>
-        </div>
-      </section>
+          <button class="btn btn-small btn-ghost open-rsvp" type="button">View all teams</button>
+        </section>
 
-      <section class="rsvp-area" id="rsvp">
-        <div class="rsvp-panel">
-          <div class="section-label">RSVP</div>
-          <h2>Join Team Yuvaan</h2>
-          <p class="section-copy">Tell us if you are going, maybe, or cannot make it. The squad counter updates after every confirmed response.</p>
-
-          <form id="rsvp-form" class="rsvp-form">
-            <label>
-              Player name
-              <input type="text" name="guest_name" autocomplete="name" placeholder="Your name" maxlength="80" required />
-            </label>
-
-            <fieldset>
-              <legend>Match status</legend>
-              <div class="radio-grid">
-                <label><input type="radio" name="attendance" value="going" checked /> Going</label>
-                <label><input type="radio" name="attendance" value="maybe" /> Maybe</label>
-                <label><input type="radio" name="attendance" value="not_going" /> Not going</label>
-              </div>
-            </fieldset>
-
-            <div class="form-grid">
-              <label>
-                Squad size
-                <input type="number" name="guest_count" min="0" max="10" value="1" inputmode="numeric" />
-              </label>
-              <label>
-                Pick your dream team
-                <select name="favorite_team">
-                  <option value="Yuvaan FC">Yuvaan FC</option>
-                  <option value="Team Messi">Team Messi</option>
-                  <option value="Team Ronaldo">Team Ronaldo</option>
-                  <option value="Team Mbappe">Team Mbappe</option>
-                  <option value="Team Canada">Team Canada</option>
-                  <option value="Team Brazil">Team Brazil</option>
-                </select>
-              </label>
+        <section class="panel penalty-panel" id="game">
+          <div class="panel-heading"><span>⚽</span><h2>Penalty shootout</h2></div>
+          <p class="panel-subtitle">Score to join the tournament</p>
+          <div class="penalty-stage clean-game">
+            <div class="goal-net" aria-hidden="true">
+              <div class="keeper" id="keeper">🧤</div>
             </div>
-
-            <label>
-              Phone or email, optional
-              <input type="text" name="contact" autocomplete="email" placeholder="For host follow up only" maxlength="120" />
-            </label>
-
-            <label>
-              Message for Yuvaan
-              <textarea name="message" rows="3" placeholder="Birthday wish or song request" maxlength="240"></textarea>
-            </label>
-
-            <label class="checkbox-row">
-              <input type="checkbox" name="is_public" checked />
-              Show my name in the who is coming list
-            </label>
-
-            <button class="button button-primary full-width" type="submit">Submit RSVP</button>
-            <p class="form-status" id="rsvp-status" role="status"></p>
-          </form>
-        </div>
-
-        <aside class="squad-panel" id="squad" aria-live="polite">
-          <div class="scoreboard">
-            <p class="scoreboard-label">Who's coming</p>
-            <strong id="going-count">0</strong>
-            <span>players confirmed</span>
+            <div class="game-player" aria-hidden="true">🧒</div>
+            <div class="penalty-ball" id="penalty-ball" aria-hidden="true">⚽</div>
+            <div class="shot-icons" id="shot-icons"><span>⚽</span><span>⚽</span><span>⚽</span></div>
+            <div class="shot-targets" aria-label="Penalty targets">
+              <button type="button" data-shot="left">Left</button>
+              <button type="button" data-shot="middle">Middle</button>
+              <button type="button" data-shot="right">Right</button>
+            </div>
           </div>
-          <div class="mini-stats">
-            <div><strong id="maybe-count">0</strong><span>Maybes</span></div>
-            <div><strong id="not-going-count">0</strong><span>Can't make it</span></div>
-          </div>
-          <div class="guest-list-wrap">
-            <h3>Starting lineup</h3>
+          <button class="btn btn-pink" type="button" id="shoot-button">Play now</button>
+          <p class="challenge-note" id="game-status">3 shots challenge</p>
+        </section>
+
+        <section class="panel player-card-panel" id="player-card-section">
+          <div class="panel-heading"><span>⭐</span><h2>Your player card</h2></div>
+          <p class="panel-subtitle">Welcome to the squad</p>
+          <article class="player-card" id="player-card">
+            <img src="/assets/player-card-art.png" alt="Sample player card" />
+            <div class="player-card-overlay">
+              <strong id="card-name">Future Legend</strong>
+              <span id="card-team">Yuvaan FC</span>
+              <em id="card-rating">97</em>
+            </div>
+          </article>
+          <button class="btn btn-ghost open-rsvp" type="button">Create my card</button>
+        </section>
+
+        <section class="panel lineup-panel" id="squad">
+          <div class="panel-heading"><span>👥</span><h2>Starting lineup</h2></div>
+          <p class="panel-subtitle">Players confirmed <strong id="going-count">0</strong></p>
+          <div class="pitch-wrap clean-lineup" aria-label="Clean soccer pitch lineup">
+            <div class="pitch-field" aria-hidden="true">
+              <span class="center-circle"></span>
+              <span class="box top-box"></span>
+              <span class="box bottom-box"></span>
+            </div>
             <div class="pitch-lineup" id="pitch-lineup">
               <span>No players yet. Be first on the team sheet.</span>
             </div>
-            <h3>Squad list</h3>
-            <ul class="guest-list" id="guest-list">
-              <li>No players yet. Be first on the team sheet.</li>
-            </ul>
           </div>
-        </aside>
-      </section>
+          <details class="squad-details">
+            <summary>View full squad</summary>
+            <div class="mini-stats">
+              <div><strong id="maybe-count">0</strong><span>Maybes</span></div>
+              <div><strong id="not-going-count">0</strong><span>Cannot make it</span></div>
+            </div>
+            <ul class="guest-list" id="guest-list"><li>No players yet.</li></ul>
+          </details>
+        </section>
 
-      <section class="player-card-section" id="player-card-section" aria-labelledby="player-card-title">
-        <div>
-          <div class="section-label">Player card</div>
-          <h2 id="player-card-title">Your birthday squad card</h2>
-          <p class="section-copy">After a guest RSVPs, the site creates a collectible style player card they can screenshot and share.</p>
-        </div>
-        <article class="player-card" id="player-card">
-          <div class="card-rating" id="card-rating">97</div>
-          <div class="card-position">ST</div>
-          <div class="card-avatar">⚽</div>
-          <h3 id="card-name">Future Legend</h3>
-          <p id="card-team">Yuvaan FC</p>
-          <div class="card-stats">
-            <span><strong>99</strong> FUN</span>
-            <span><strong>97</strong> SPEED</span>
-            <span><strong>100</strong> PARTY</span>
+        <section class="panel tournament-panel">
+          <div class="panel-heading"><span>🏆</span><h2>Tournament table</h2></div>
+          <div id="team-counts" class="team-counts">
+            <p class="team-empty">Pick a country when you RSVP and the tournament table will light up.</p>
           </div>
-        </article>
-      </section>
+          <button class="btn btn-small btn-ghost open-rsvp" type="button">Join a team</button>
+        </section>
 
-      <section class="invite-preview-section" aria-labelledby="invite-preview-title">
-        <div class="invite-preview-copy">
-          <div class="section-label">Original invite</div>
-          <h2 id="invite-preview-title">VIP access to the big day</h2>
-          <p>Scan the printed QR code or visit yuvi.ca to RSVP, check details, and come back after the party to add photos.</p>
+        <section class="panel trophy-panel" id="trophy-room">
+          <div class="panel-heading"><span>🏆</span><h2>Trophy room</h2></div>
+          <p class="panel-subtitle">Unlock achievements</p>
+          <div class="achievement-grid">
+            <article class="unlocked"><span>👟</span><strong>First RSVP</strong><small>Join the squad</small></article>
+            <article class="unlocked"><span>⚽</span><strong>Goal Machine</strong><small>Score a goal</small></article>
+            <article class="unlocked"><span>🔥</span><strong>Fast Striker</strong><small>RSVP in 10s</small></article>
+            <article><span>🏆</span><strong>Team Player</strong><small>Invite friends</small></article>
+            <article><span>🎉</span><strong>Party Legend</strong><small>Be at the party</small></article>
+          </div>
+          <button class="btn btn-small btn-ghost" type="button">View all achievements</button>
+        </section>
+
+        <section class="panel live-count-panel">
+          <img src="/assets/lion-mascot.png" alt="Party mascot" />
+          <div>
+            <div class="panel-heading compact"><span>👥</span><h2>Live count</h2></div>
+            <strong class="big-count" id="live-count-copy">0</strong>
+            <p>players joined Team Yuvaan.</p>
+          </div>
+        </section>
+
+        <section class="panel gallery-panel" id="photos">
+          <div class="panel-heading compact"><span>📸</span><h2>Match highlights</h2></div>
+          <div class="thumbs"><img src="/assets/thumb-one.jpg" alt="Soccer highlight one" /><img src="/assets/thumb-two.jpg" alt="Soccer highlight two" /></div>
+          <button class="btn btn-small btn-ghost" type="button" id="open-photo-section">View gallery</button>
+        </section>
+
+        <section class="panel dress-panel">
+          <div class="panel-heading compact"><span>👕</span><h2>Dress code</h2></div>
+          <p>Wear your favorite jersey.</p>
+          <div class="jerseys" aria-hidden="true"><span>🇵🇹</span><span>🇧🇷</span><span>🇦🇷</span><span>🇫🇷</span></div>
+        </section>
+
+        <section class="panel rules-panel">
+          <div class="panel-heading compact"><span>📣</span><h2>Party rules</h2></div>
+          <ul><li>Have fun</li><li>Respect everyone</li><li>Play fair</li><li>Enjoy the party</li></ul>
+        </section>
+
+        <section class="panel photos-panel hidden-panel" id="photo-section">
+          <div class="panel-heading"><span>📸</span><h2>After party photo upload</h2></div>
+          <p id="photo-lock-copy" class="panel-subtitle">Photo upload opens after the party. Add <strong>?photos=1</strong> to the URL to test.</p>
+          <form id="photo-form" class="photo-form" enctype="multipart/form-data">
+            <label>Your name<input type="text" name="uploader_name" maxlength="80" placeholder="Optional" /></label>
+            <label>Caption<input type="text" name="caption" maxlength="140" placeholder="Best goal celebration!" /></label>
+            <label>Photo<input type="file" name="photo" accept="image/*" required /></label>
+            <button class="btn btn-gold" type="submit">Upload highlight</button>
+          </form>
+          <div class="photo-grid" id="photo-grid"></div>
+          <p class="status" id="photo-status"></p>
+        </section>
+      </main>
+    </div>
+
+    <nav class="mobile-tabbar" aria-label="Mobile navigation">
+      <a href="#top">🏠<span>Home</span></a>
+      <a href="#teams">👥<span>Teams</span></a>
+      <button class="open-rsvp" type="button">⚽<span>RSVP</span></button>
+      <a href="#squad">👕<span>Squad</span></a>
+      <a href="#photos">📸<span>Gallery</span></a>
+    </nav>
+
+    <dialog class="rsvp-modal" id="rsvp-modal">
+      <form method="dialog" class="modal-close-form"><button aria-label="Close RSVP" class="modal-close">×</button></form>
+      <div class="modal-grid">
+        <div class="modal-ticket">
+          <span class="vip-label">VIP Ticket</span>
+          <h2>Join Team Yuvaan</h2>
+          <p>Submit your match status. Going players count toward the live squad and country table.</p>
+          <div class="ticket-stats"><span>Player: You</span><span>Jersey: 07</span><span>Mission: Celebrate</span></div>
         </div>
-        <img src="/invite.jpg" alt="Yuvaan's 7th birthday World Cup party invitation" class="invite-preview" />
-      </section>
 
-      <section class="photo-section" id="photos" aria-labelledby="photos-title">
-        <div class="photo-copy">
-          <div class="section-label">After party photos</div>
-          <h2 id="photos-title">Upload match day memories</h2>
-          <p id="photo-lock-message">Photo upload opens after the final whistle. For testing before the party, add ?photos=1 to the site URL.</p>
-        </div>
+        <form id="rsvp-form" class="rsvp-form">
+          <label>Player name<input type="text" name="guest_name" autocomplete="name" placeholder="Your name" maxlength="80" required /></label>
 
-        <form id="photo-form" class="photo-form">
-          <label>
-            Your name
-            <input type="text" name="uploader_name" placeholder="Who is uploading?" maxlength="80" />
+          <fieldset>
+            <legend>Match status</legend>
+            <div class="radio-grid">
+              <label><input type="radio" name="attendance" value="going" checked /> Going</label>
+              <label><input type="radio" name="attendance" value="maybe" /> Maybe</label>
+              <label><input type="radio" name="attendance" value="not_going" /> Not going</label>
+            </div>
+          </fieldset>
+
+          <label>Number of players<input type="number" name="guest_count" value="1" min="1" max="10" /></label>
+
+          <label>Favorite team
+            <select name="favorite_team">
+              <option>Brazil FC</option>
+              <option>Argentina FC</option>
+              <option>France FC</option>
+              <option>Portugal FC</option>
+              <option>Canada FC</option>
+              <option>England FC</option>
+              <option>Germany FC</option>
+              <option>Mexico FC</option>
+              <option>Yuvaan FC</option>
+            </select>
           </label>
-          <label>
-            Caption
-            <input type="text" name="caption" placeholder="Best goal celebration ever" maxlength="140" />
-          </label>
-          <label class="file-input">
-            Choose a photo
-            <input type="file" name="photo" accept="image/png,image/jpeg,image/webp,image/gif" required />
-          </label>
-          <button class="button button-secondary full-width" type="submit">Upload photo</button>
-          <p class="form-status" id="photo-status" role="status"></p>
+
+          <label>Phone or email<input type="text" name="contact" autocomplete="email" placeholder="Optional" maxlength="120" /></label>
+          <label>Message<textarea name="message" rows="3" maxlength="240" placeholder="Birthday message or notes"></textarea></label>
+          <label class="checkbox-row"><input type="checkbox" name="is_public" checked /> Show my name in the squad lineup</label>
+          <button class="btn btn-gold" type="submit">Submit RSVP</button>
+          <p class="status" id="rsvp-status"></p>
         </form>
-
-        <div class="photo-gallery" id="photo-gallery" aria-live="polite"></div>
-      </section>
-    </main>
-
-    <footer class="footer">
-      <p>Questions or changes? RSVP to Neelam at 647 535 4017.</p>
-      <p>This private birthday site is World Cup inspired and is not affiliated with FIFA.</p>
-    </footer>
+      </div>
+    </dialog>
 
     <script type="module" src="/src/main.js"></script>
   </body>

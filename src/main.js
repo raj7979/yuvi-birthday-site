@@ -6,8 +6,8 @@ const PHOTO_UNLOCK_TIME = new Date('2026-06-06T18:00:00-04:00');
 const PHOTO_BUCKET = import.meta.env.VITE_SUPABASE_PHOTO_BUCKET || 'yuvi-party-photos';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-const DEMO_RSVP_KEY = 'yuvi_rsvps_demo';
-const INTRO_KEY = 'yuvi_stadium_intro_seen';
+const DEMO_RSVP_KEY = 'yuvi_rsvps_demo_v2';
+const INTRO_KEY = 'yuvi_stadium_intro_seen_v2';
 
 const supabaseConfigured =
   SUPABASE_URL.startsWith('https://') &&
@@ -20,19 +20,18 @@ const queryParams = new URLSearchParams(window.location.search);
 const photoUploadUnlocked = Date.now() >= PHOTO_UNLOCK_TIME.getTime() || queryParams.has('photos');
 
 const $ = (selector) => document.querySelector(selector);
-const setText = (selector, value) => {
+const $$ = (selector) => [...document.querySelectorAll(selector)];
+const pad = (number) => String(number).padStart(2, '0');
+const clamp = (number, min, max) => Math.min(Math.max(number, min), max);
+
+function setText(selector, value) {
   const element = $(selector);
   if (element) element.textContent = value;
-};
-
-const clamp = (number, min, max) => Math.min(Math.max(number, min), max);
-const pad = (number) => String(number).padStart(2, '0');
+}
 
 function updateCountdown() {
-  const diff = EVENT_START.getTime() - Date.now();
-  const safeDiff = Math.max(0, diff);
-  const secondsTotal = Math.floor(safeDiff / 1000);
-
+  const diff = Math.max(0, EVENT_START.getTime() - Date.now());
+  const secondsTotal = Math.floor(diff / 1000);
   const days = Math.floor(secondsTotal / 86400);
   const hours = Math.floor((secondsTotal % 86400) / 3600);
   const minutes = Math.floor((secondsTotal % 3600) / 60);
@@ -68,107 +67,147 @@ function buildLocalSummary() {
   const going = rsvps.filter((rsvp) => rsvp.attendance === 'going');
   const maybe = rsvps.filter((rsvp) => rsvp.attendance === 'maybe');
   const notGoing = rsvps.filter((rsvp) => rsvp.attendance === 'not_going');
+  const teamCounts = going.reduce((teams, rsvp) => {
+    const team = rsvp.favorite_team || 'Yuvaan FC';
+    teams[team] = (teams[team] || 0) + Number(rsvp.guest_count || 1);
+    return teams;
+  }, {});
 
   return {
     going_count: going.length,
     maybe_count: maybe.length,
     not_going_count: notGoing.length,
     total_people: going.reduce((total, rsvp) => total + Number(rsvp.guest_count || 1), 0),
-    public_names: going.filter((rsvp) => rsvp.is_public).map((rsvp) => rsvp.display_name || rsvp.guest_name)
+    public_names: going.filter((rsvp) => rsvp.is_public).map((rsvp) => rsvp.display_name || rsvp.guest_name),
+    team_counts: teamCounts
   };
 }
 
+function normalizeSummary(summary) {
+  return {
+    goingCount: Number(summary?.going_count || 0),
+    maybeCount: Number(summary?.maybe_count || 0),
+    notGoingCount: Number(summary?.not_going_count || 0),
+    totalPeople: Number(summary?.total_people ?? summary?.going_count ?? 0),
+    publicNames: Array.isArray(summary?.public_names) ? summary.public_names : [],
+    teamCounts: summary?.team_counts && typeof summary.team_counts === 'object' ? summary.team_counts : {}
+  };
+}
+
+function flagForTeam(team) {
+  const name = String(team || '').toLowerCase();
+  if (name.includes('brazil')) return '🇧🇷';
+  if (name.includes('argentina')) return '🇦🇷';
+  if (name.includes('france')) return '🇫🇷';
+  if (name.includes('portugal')) return '🇵🇹';
+  if (name.includes('canada')) return '🇨🇦';
+  if (name.includes('england')) return '🏴';
+  if (name.includes('germany')) return '🇩🇪';
+  if (name.includes('mexico')) return '🇲🇽';
+  return '⚽';
+}
+
 function renderSummary(summary) {
-  const totalPeople = Number(summary?.total_people ?? summary?.going_count ?? 0);
-  const maybeCount = Number(summary?.maybe_count ?? 0);
-  const notGoingCount = Number(summary?.not_going_count ?? 0);
-  const publicNames = Array.isArray(summary?.public_names) ? summary.public_names : [];
+  const data = normalizeSummary(summary);
 
-  setText('#going-count', totalPeople);
-  setText('#maybe-count', maybeCount);
-  setText('#not-going-count', notGoingCount);
+  setText('#going-count', data.totalPeople);
+  setText('#maybe-count', data.maybeCount);
+  setText('#not-going-count', data.notGoingCount);
+  setText('#live-count-copy', data.totalPeople);
 
-  const guestList = $('#guest-list');
-  if (!guestList) return;
+  renderTeamCounts(data.teamCounts);
+  renderLineup(data.publicNames);
+  renderGuestList(data.publicNames);
+}
 
-  guestList.innerHTML = '';
-  if (!publicNames.length) {
-    const item = document.createElement('li');
-    item.textContent = 'No players yet. Be first on the team sheet.';
-    guestList.appendChild(item);
-    renderLineup([]);
+function renderTeamCounts(teamCounts = {}) {
+  const board = $('#team-counts');
+  const entries = Object.entries(teamCounts)
+    .map(([team, count]) => [team, Number(count || 0)])
+    .filter(([, count]) => count > 0)
+    .sort((a, b) => b[1] - a[1]);
+
+  $$('[data-team-live]').forEach((element) => {
+    const team = element.dataset.teamLive;
+    const count = Number(teamCounts[team] || 0);
+    element.textContent = `${count} ${count === 1 ? 'player' : 'players'}`;
+  });
+
+  if (!board) return;
+
+  board.innerHTML = '';
+  if (!entries.length) {
+    board.innerHTML = '<p class="team-empty">Pick a country when you RSVP and the tournament table will light up.</p>';
     return;
   }
 
-  publicNames.slice(0, 50).forEach((name) => {
-    const item = document.createElement('li');
-    item.textContent = name;
-    guestList.appendChild(item);
+  entries.slice(0, 6).forEach(([team, count], index) => {
+    const row = document.createElement('div');
+    row.className = 'team-count-row';
+    row.innerHTML = `<em>${index + 1}</em><span>${flagForTeam(team)} ${escapeHtml(team)}</span><strong>${count}</strong>`;
+    board.appendChild(row);
   });
-
-  renderLineup(publicNames);
 }
 
-function renderLineup(publicNames = []) {
+function renderGuestList(names = []) {
+  const list = $('#guest-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  if (!names.length) {
+    const item = document.createElement('li');
+    item.textContent = 'No players yet. Be first on the team sheet.';
+    list.appendChild(item);
+    return;
+  }
+
+  names.slice(0, 50).forEach((name) => {
+    const item = document.createElement('li');
+    item.textContent = name;
+    list.appendChild(item);
+  });
+}
+
+function renderLineup(names = []) {
   const lineup = $('#pitch-lineup');
   if (!lineup) return;
-
   lineup.innerHTML = '';
-  if (!publicNames.length) {
+
+  if (!names.length) {
     const empty = document.createElement('span');
     empty.textContent = 'No players yet. Be first on the team sheet.';
     lineup.appendChild(empty);
     return;
   }
 
-  publicNames.slice(0, 11).forEach((name, index) => {
+  names.slice(0, 11).forEach((name) => {
     const player = document.createElement('div');
-    player.className = `lineup-player slot-${index + 1}`;
-    player.innerHTML = `<span>⚽</span><strong>${name}</strong>`;
+    player.className = 'lineup-player';
+    player.innerHTML = `<span>😊</span><b>${escapeHtml(name)}</b>`;
     lineup.appendChild(player);
   });
 }
 
-function updatePlayerCard(rsvp) {
-  const card = $('#player-card');
-  if (!card || !rsvp) return;
-
-  const name = rsvp.display_name || rsvp.guest_name || 'Future Legend';
-  const team = rsvp.favorite_team || 'Yuvaan FC';
-  const rating = rsvp.attendance === 'going' ? 99 : rsvp.attendance === 'maybe' ? 88 : 77;
-
-  setText('#card-name', name);
-  setText('#card-team', team);
-  setText('#card-rating', rating);
-  card.classList.remove('is-flipped');
-  window.setTimeout(() => card.classList.add('is-flipped'), 60);
-}
-
-function showGoalBanner(text = 'GOOOAAAL!') {
-  const banner = $('#goal-banner');
-  if (!banner) return;
-  banner.textContent = text;
-  banner.classList.add('is-visible');
-  window.setTimeout(() => banner.classList.remove('is-visible'), 1700);
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
 async function loadRsvpSummary() {
   if (!supabase) {
     renderSummary(buildLocalSummary());
     const status = $('#rsvp-status');
-    if (status && !getLocalRsvps().length) {
-      status.textContent = 'Preview mode: connect Supabase to save real RSVPs.';
-    }
+    if (status && !getLocalRsvps().length) status.textContent = 'Preview mode. Add Supabase env vars for live RSVPs.';
     return;
   }
 
   const { data, error } = await supabase.rpc('get_rsvp_summary');
-  if (error) {
-    throw error;
-  }
-
-  const summary = Array.isArray(data) ? data[0] : data;
-  renderSummary(summary);
+  if (error) throw error;
+  renderSummary(Array.isArray(data) ? data[0] : data);
 }
 
 function readRsvpForm(form) {
@@ -190,25 +229,41 @@ function readRsvpForm(form) {
   };
 }
 
+function updatePlayerCard(rsvp) {
+  const name = rsvp.display_name || rsvp.guest_name || 'Future Legend';
+  const team = rsvp.favorite_team || 'Yuvaan FC';
+  const rating = rsvp.attendance === 'going' ? 99 : rsvp.attendance === 'maybe' ? 88 : 77;
+
+  setText('#card-name', name);
+  setText('#card-team', team);
+  setText('#card-rating', rating);
+
+  const card = $('#player-card');
+  if (card) {
+    card.classList.remove('card-pop');
+    window.setTimeout(() => card.classList.add('card-pop'), 20);
+  }
+}
+
 function setupRsvpForm() {
   const form = $('#rsvp-form');
   const status = $('#rsvp-status');
-  if (!form || !status) return;
+  if (!form) return;
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    status.classList.remove('error');
-    status.textContent = 'Submitting your RSVP...';
+    const rsvp = readRsvpForm(form);
+
+    if (!rsvp.guest_name) {
+      if (status) status.textContent = 'Please enter the player name.';
+      return;
+    }
 
     const submitButton = form.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
+    if (submitButton) submitButton.disabled = true;
+    if (status) status.textContent = 'Submitting your match ticket...';
 
     try {
-      const rsvp = readRsvpForm(form);
-      if (!rsvp.guest_name) {
-        throw new Error('Please enter your name.');
-      }
-
       if (supabase) {
         const { error } = await supabase.from('rsvps').insert(rsvp);
         if (error) throw error;
@@ -216,362 +271,314 @@ function setupRsvpForm() {
         saveLocalRsvp(rsvp);
       }
 
-      status.textContent = rsvp.attendance === 'going'
-        ? 'You are on the team sheet. See you at kick off!'
-        : 'Thanks, your RSVP has been saved.';
-
-      form.reset();
-      form.querySelector('input[name="attendance"][value="going"]').checked = true;
-      form.querySelector('input[name="guest_count"]').value = '1';
-      form.querySelector('input[name="is_public"]').checked = true;
-
-      await loadRsvpSummary();
       updatePlayerCard(rsvp);
-      showGoalBanner(rsvp.attendance === 'going' ? 'GOOOAAAL! RSVP SAVED' : 'RSVP SAVED!');
-      burstConfetti(rsvp.attendance === 'going' ? 4200 : 1800);
-    } catch (error) {
-      status.classList.add('error');
-      status.textContent = error.message || 'Something went wrong. Please try again.';
-    } finally {
-      submitButton.disabled = false;
-    }
-  });
-}
-
-function randomId() {
-  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-function getPhotoExtension(file) {
-  const fallback = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : file.type === 'image/gif' ? 'gif' : 'jpg';
-  const raw = file.name.split('.').pop() || fallback;
-  return raw.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5) || fallback;
-}
-
-function renderPhotos(photos) {
-  const gallery = $('#photo-gallery');
-  if (!gallery) return;
-
-  gallery.innerHTML = '';
-  if (!photos?.length) {
-    const empty = document.createElement('p');
-    empty.className = 'form-status';
-    empty.textContent = photoUploadUnlocked ? 'No photos yet. Come back after the party and add the first one.' : 'The gallery will appear here after the party.';
-    gallery.appendChild(empty);
-    return;
-  }
-
-  photos.forEach((photo) => {
-    const card = document.createElement('article');
-    card.className = 'photo-card';
-
-    const img = document.createElement('img');
-    img.src = photo.public_url;
-    img.alt = photo.caption || `Photo uploaded by ${photo.uploader_name || 'a guest'}`;
-    img.loading = 'lazy';
-
-    const body = document.createElement('div');
-    const byline = document.createElement('strong');
-    byline.textContent = photo.uploader_name || 'Guest';
-    const caption = document.createElement('p');
-    caption.textContent = photo.caption || 'Party memory';
-
-    body.append(byline, caption);
-    card.append(img, body);
-    gallery.appendChild(card);
-  });
-}
-
-async function loadPhotos() {
-  if (!supabase) {
-    renderPhotos([]);
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from('party_photos')
-    .select('uploader_name, caption, public_url, created_at')
-    .eq('approved', true)
-    .order('created_at', { ascending: false })
-    .limit(24);
-
-  if (error) throw error;
-  renderPhotos(data);
-}
-
-function setupPhotoForm() {
-  const form = $('#photo-form');
-  const status = $('#photo-status');
-  const message = $('#photo-lock-message');
-  if (!form || !status || !message) return;
-
-  if (!photoUploadUnlocked) {
-    form.classList.add('is-locked');
-    form.querySelectorAll('input, button').forEach((element) => {
-      element.disabled = true;
-    });
-    message.textContent = `Photo upload opens after the final whistle on June 6, 2026. For testing before the party, add ?photos=1 to the site URL.`;
-  } else if (!supabase) {
-    form.classList.add('is-locked');
-    form.querySelectorAll('input, button').forEach((element) => {
-      element.disabled = true;
-    });
-    message.textContent = 'Photo upload is unlocked, but Supabase must be connected before guests can upload images.';
-  } else {
-    message.textContent = 'Photo upload is open. Add your favourite match day memories to the gallery.';
-  }
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (!photoUploadUnlocked || !supabase) return;
-
-    const submitButton = form.querySelector('button[type="submit"]');
-    const formData = new FormData(form);
-    const file = formData.get('photo');
-    const uploaderName = String(formData.get('uploader_name') || '').trim() || 'Guest';
-    const caption = String(formData.get('caption') || '').trim();
-
-    status.classList.remove('error');
-    status.textContent = 'Uploading photo...';
-    submitButton.disabled = true;
-
-    try {
-      if (!(file instanceof File) || file.size === 0) {
-        throw new Error('Please choose a photo.');
-      }
-
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-      if (!allowedTypes.includes(file.type)) {
-        throw new Error('Please upload a JPG, PNG, WEBP, or GIF image.');
-      }
-
-      const maxSize = 10 * 1024 * 1024;
-      if (file.size > maxSize) {
-        throw new Error('Please choose a photo smaller than 10 MB.');
-      }
-
-      const extension = getPhotoExtension(file);
-      const dayFolder = new Date().toISOString().slice(0, 10);
-      const filePath = `party/${dayFolder}/${randomId()}.${extension}`;
-
-      const { error: uploadError } = await supabase.storage.from(PHOTO_BUCKET).upload(filePath, file, {
-        cacheControl: '3600',
-        contentType: file.type,
-        upsert: false
-      });
-
-      if (uploadError) throw uploadError;
-
-      const { data: publicUrlData } = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(filePath);
-      const publicUrl = publicUrlData.publicUrl;
-
-      const { error: metadataError } = await supabase.from('party_photos').insert({
-        uploader_name: uploaderName,
-        caption,
-        file_path: filePath,
-        public_url: publicUrl,
-        approved: true
-      });
-
-      if (metadataError) throw metadataError;
-
-      status.textContent = 'Uploaded. That memory is in the gallery!';
+      await loadRsvpSummary();
+      burstConfetti(140);
+      showGoalBanner(rsvp.attendance === 'going' ? 'GOOOAAAL!' : 'Ticket saved!');
+      if (status) status.textContent = 'You are on the match sheet. Thank you!';
       form.reset();
-      await loadPhotos();
-      burstConfetti(1800);
+      syncSelectedTeam('Brazil FC');
     } catch (error) {
-      status.classList.add('error');
-      status.textContent = error.message || 'Upload failed. Please try again.';
+      console.error(error);
+      if (status) status.textContent = 'Could not save RSVP. Please try again or message Neelam.';
     } finally {
-      submitButton.disabled = false;
+      if (submitButton) submitButton.disabled = false;
     }
   });
 }
 
-function burstConfetti(duration = 2600) {
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReducedMotion) return;
-
-  const canvas = $('#confetti-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-
-  const dpr = window.devicePixelRatio || 1;
-  const resize = () => {
-    canvas.width = Math.floor(window.innerWidth * dpr);
-    canvas.height = Math.floor(window.innerHeight * dpr);
-    canvas.style.width = `${window.innerWidth}px`;
-    canvas.style.height = `${window.innerHeight}px`;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  };
-
-  resize();
-
-  const colors = ['#f4c75f', '#fffaf0', '#0f6a37', '#e63946', '#2563eb'];
-  const shapes = ['rect', 'circle', 'star'];
-  const particles = Array.from({ length: 170 }, () => ({
-    x: Math.random() * window.innerWidth,
-    y: -30 - Math.random() * window.innerHeight * 0.35,
-    vx: -3 + Math.random() * 6,
-    vy: 3 + Math.random() * 5,
-    size: 5 + Math.random() * 8,
-    spin: Math.random() * Math.PI,
-    spinSpeed: -0.18 + Math.random() * 0.36,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    shape: shapes[Math.floor(Math.random() * shapes.length)],
-    gravity: 0.045 + Math.random() * 0.04,
-    opacity: 0.74 + Math.random() * 0.26
-  }));
-
-  const startedAt = performance.now();
-  const endAt = startedAt + duration;
-
-  function drawStar(x, y, radius) {
-    ctx.beginPath();
-    for (let i = 0; i < 10; i += 1) {
-      const angle = (Math.PI / 5) * i - Math.PI / 2;
-      const length = i % 2 === 0 ? radius : radius * 0.45;
-      ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
-    }
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  function frame(now) {
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-    particles.forEach((particle) => {
-      particle.x += particle.vx;
-      particle.y += particle.vy;
-      particle.vy += particle.gravity;
-      particle.spin += particle.spinSpeed;
-
-      if (particle.y > window.innerHeight + 40) {
-        particle.y = -20;
-        particle.x = Math.random() * window.innerWidth;
-        particle.vy = 2 + Math.random() * 4;
-      }
-
-      ctx.save();
-      ctx.translate(particle.x, particle.y);
-      ctx.rotate(particle.spin);
-      ctx.globalAlpha = particle.opacity * Math.max(0, (endAt - now) / duration);
-      ctx.fillStyle = particle.color;
-
-      if (particle.shape === 'circle') {
-        ctx.beginPath();
-        ctx.arc(0, 0, particle.size * 0.55, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (particle.shape === 'star') {
-        drawStar(0, 0, particle.size * 0.75);
-      } else {
-        ctx.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size * 0.58);
-      }
-
-      ctx.restore();
+function setupTeamPicker() {
+  const select = $('select[name="favorite_team"]');
+  $$('.team-card-button').forEach((button) => {
+    button.addEventListener('click', () => {
+      syncSelectedTeam(button.dataset.team || 'Brazil FC');
+      openRsvpModal(false);
     });
-
-    if (now < endAt) {
-      requestAnimationFrame(frame);
-    } else {
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    }
-  }
-
-  requestAnimationFrame(frame);
+  });
+  if (select) select.addEventListener('change', () => syncSelectedTeam(select.value));
+  syncSelectedTeam(select?.value || 'Brazil FC');
 }
 
+function syncSelectedTeam(team) {
+  const select = $('select[name="favorite_team"]');
+  if (select && [...select.options].some((option) => option.value === team)) select.value = team;
+
+  $$('.team-card-button').forEach((button) => {
+    const selected = button.dataset.team === team;
+    button.classList.toggle('is-selected', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
+}
+
+function setupRsvpModal() {
+  const modal = $('#rsvp-modal');
+  if (!modal) return;
+
+  $$('.open-rsvp').forEach((button) => {
+    button.addEventListener('click', () => openRsvpModal(true));
+  });
+
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) modal.close();
+  });
+}
+
+function openRsvpModal(focusName = true) {
+  const modal = $('#rsvp-modal');
+  if (!modal) return;
+
+  if (typeof modal.showModal === 'function' && !modal.open) modal.showModal();
+  else modal.setAttribute('open', '');
+
+  if (focusName) window.setTimeout(() => modal.querySelector('input[name="guest_name"]')?.focus(), 120);
+}
 
 function setupStadiumIntro() {
   const intro = $('#stadium-intro');
   const button = $('#enter-stadium');
   if (!intro || !button) return;
 
-  const alreadySeen = localStorage.getItem(INTRO_KEY) === 'yes';
-  if (alreadySeen) {
+  if (localStorage.getItem(INTRO_KEY) === 'yes' && !queryParams.has('intro')) {
     intro.classList.add('is-hidden');
     return;
   }
 
-  button.addEventListener('click', () => {
+  const close = () => {
     localStorage.setItem(INTRO_KEY, 'yes');
     intro.classList.add('is-hidden');
-    showGoalBanner('WELCOME TO YUVAAN STADIUM');
-    burstConfetti(1800);
-  });
+    burstConfetti(90);
+  };
+
+  button.addEventListener('click', close);
+}
+
+function showGoalBanner(text = 'GOOOAAAL!') {
+  const banner = $('#goal-banner');
+  if (!banner) return;
+  banner.textContent = text;
+  banner.classList.add('is-visible');
+  window.setTimeout(() => banner.classList.remove('is-visible'), 1500);
 }
 
 function setupPenaltyGame() {
-  const targets = [...document.querySelectorAll('.shot-target')];
-  const goalie = $('#goalie');
-  const ball = $('#game-ball');
+  let shots = [];
+  let selectedShot = 'middle';
   const status = $('#game-status');
-  const reset = $('#reset-game');
-  if (!targets.length || !goalie || !ball || !status || !reset) return;
+  const shootButton = $('#shoot-button');
+  const targets = $$('.shot-targets button');
 
-  const positions = ['left', 'middle', 'right'];
-  const resetShot = () => {
-    ball.className = 'ball';
-    goalie.className = 'goalie';
-    targets.forEach((target) => { target.disabled = false; target.classList.remove('is-picked'); });
-    status.textContent = 'Choose your corner and shoot!';
-  };
+  function renderShots() {
+    const icons = $$('#shot-icons span');
+    icons.forEach((icon, index) => {
+      icon.classList.remove('good', 'miss');
+      icon.textContent = '⚽';
+      if (shots[index] === true) {
+        icon.classList.add('good');
+        icon.textContent = '✓';
+      }
+      if (shots[index] === false) {
+        icon.classList.add('miss');
+        icon.textContent = '×';
+      }
+    });
+  }
 
   targets.forEach((target) => {
     target.addEventListener('click', () => {
-      const shot = target.dataset.shot;
-      const goalieDive = positions[Math.floor(Math.random() * positions.length)];
-      const scored = shot !== goalieDive || Math.random() > 0.72;
-
-      targets.forEach((item) => { item.disabled = true; item.classList.remove('is-picked'); });
-      target.classList.add('is-picked');
-      goalie.className = `goalie dive-${goalieDive}`;
-      ball.className = `ball shoot-${shot}`;
-
-      if (scored) {
-        status.textContent = 'GOAL! You unlocked champion energy for the RSVP.';
-        showGoalBanner('GOOOAAAL!');
-        burstConfetti(2200);
-      } else {
-        status.textContent = 'Saved by the goalie! Try again or RSVP anyway.';
-        showGoalBanner('BIG SAVE!');
-      }
+      selectedShot = target.dataset.shot || 'middle';
+      targets.forEach((button) => button.classList.toggle('is-targeted', button === target));
+      if (status) status.textContent = `Target selected: ${selectedShot}. Hit play now!`;
     });
   });
 
-  reset.addEventListener('click', resetShot);
+  shootButton?.addEventListener('click', () => {
+    if (shots.length >= 3) shots = [];
+    const goalie = ['left', 'middle', 'right'][Math.floor(Math.random() * 3)];
+    const ball = $('#penalty-ball');
+    const keeper = $('#keeper');
+    if (ball) {
+      ball.classList.remove('shoot-left', 'shoot-middle', 'shoot-right');
+      void ball.offsetWidth;
+      ball.classList.add(`shoot-${selectedShot}`);
+    }
+    if (keeper) {
+      keeper.classList.remove('dive-left', 'dive-middle', 'dive-right');
+      void keeper.offsetWidth;
+      keeper.classList.add(`dive-${goalie}`);
+    }
+    const scored = goalie !== selectedShot || Math.random() > 0.7;
+    shots.push(scored);
+    renderShots();
+
+    if (scored) {
+      if (status) status.textContent = `Goal! Keeper went ${goalie}.`;
+      showGoalBanner('GOAL!');
+      burstConfetti(80);
+    } else if (status) {
+      status.textContent = `Saved! Keeper guessed ${goalie}. Try again.`;
+    }
+
+    if (shots.length === 3) {
+      const goals = shots.filter(Boolean).length;
+      window.setTimeout(() => {
+        if (status) status.textContent = `${goals}/3 goals. ${goals ? 'Create your player card now!' : 'One more round?'}`;
+      }, 850);
+    }
+  });
+}
+
+function setupPhotoSection() {
+  const section = $('#photo-section');
+  const openButton = $('#open-photo-section');
+  const form = $('#photo-form');
+  const status = $('#photo-status');
+  const lockCopy = $('#photo-lock-copy');
+
+  openButton?.addEventListener('click', () => {
+    section?.classList.add('is-open');
+    section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  if (!form) return;
+
+  if (!photoUploadUnlocked) {
+    form.querySelectorAll('input, button').forEach((input) => { input.disabled = true; });
+  } else if (lockCopy) {
+    lockCopy.textContent = 'Photo upload is open. Add your best match highlight.';
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!photoUploadUnlocked) return;
+
+    const formData = new FormData(form);
+    const file = formData.get('photo');
+    if (!(file instanceof File) || !file.size) {
+      if (status) status.textContent = 'Please select a photo first.';
+      return;
+    }
+
+    if (!supabase) {
+      addPhotoCard(URL.createObjectURL(file), formData.get('caption') || 'Party highlight');
+      if (status) status.textContent = 'Preview photo added locally. Connect Supabase for live uploads.';
+      form.reset();
+      return;
+    }
+
+    try {
+      if (status) status.textContent = 'Uploading match highlight...';
+      const safeName = file.name.replace(/[^a-z0-9.\-_]/gi, '_');
+      const path = `party/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
+      const { error: uploadError } = await supabase.storage.from(PHOTO_BUCKET).upload(path, file, { cacheControl: '3600' });
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path);
+      const publicUrl = data.publicUrl;
+      const metadata = {
+        uploader_name: String(formData.get('uploader_name') || '').trim(),
+        caption: String(formData.get('caption') || '').trim(),
+        file_path: path,
+        public_url: publicUrl
+      };
+      const { error: insertError } = await supabase.from('party_photos').insert(metadata);
+      if (insertError) throw insertError;
+
+      addPhotoCard(publicUrl, metadata.caption || 'Party highlight');
+      if (status) status.textContent = 'Highlight uploaded!';
+      form.reset();
+      burstConfetti(60);
+    } catch (error) {
+      console.error(error);
+      if (status) status.textContent = 'Upload failed. Please try again after checking Supabase storage.';
+    }
+  });
+}
+
+function addPhotoCard(url, caption) {
+  const grid = $('#photo-grid');
+  if (!grid) return;
+  const card = document.createElement('article');
+  card.className = 'photo-card';
+  card.innerHTML = `<img src="${escapeHtml(url)}" alt="Party upload" /><p>${escapeHtml(caption)}</p>`;
+  grid.prepend(card);
+}
+
+function setupConfetti() {
+  const canvas = $('#confetti-canvas');
+  if (!canvas) return;
+  const context = canvas.getContext('2d');
+  let pieces = [];
+  let running = false;
+
+  function resize() {
+    canvas.width = window.innerWidth * window.devicePixelRatio;
+    canvas.height = window.innerHeight * window.devicePixelRatio;
+    context.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+  }
+
+  function add(count = 100) {
+    const colors = ['#ffd84a', '#ff2d8d', '#2ee6ff', '#24df75', '#ffffff', '#ff9f1c'];
+    pieces = pieces.concat(Array.from({ length: count }, () => ({
+      x: Math.random() * window.innerWidth,
+      y: -30 - Math.random() * 120,
+      size: 5 + Math.random() * 10,
+      speed: 2 + Math.random() * 5,
+      drift: -2 + Math.random() * 4,
+      rotation: Math.random() * Math.PI,
+      spin: -0.16 + Math.random() * 0.32,
+      color: colors[Math.floor(Math.random() * colors.length)]
+    })));
+    if (!running) animate();
+  }
+
+  function animate() {
+    running = true;
+    context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    pieces = pieces.filter((piece) => piece.y < window.innerHeight + 30);
+
+    pieces.forEach((piece) => {
+      piece.y += piece.speed;
+      piece.x += piece.drift;
+      piece.rotation += piece.spin;
+      context.save();
+      context.translate(piece.x, piece.y);
+      context.rotate(piece.rotation);
+      context.fillStyle = piece.color;
+      context.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size * 0.62);
+      context.restore();
+    });
+
+    if (pieces.length) requestAnimationFrame(animate);
+    else running = false;
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  window.burstConfetti = add;
+}
+
+function burstConfetti(count = 100) {
+  if (typeof window.burstConfetti === 'function') window.burstConfetti(count);
 }
 
 async function boot() {
-  setupStadiumIntro();
-  setupPenaltyGame();
+  setupConfetti();
   startCountdown();
+  setupStadiumIntro();
+  setupRsvpModal();
+  setupTeamPicker();
+  setupPenaltyGame();
   setupRsvpForm();
-  setupPhotoForm();
+  setupPhotoSection();
 
   try {
     await loadRsvpSummary();
   } catch (error) {
+    console.error(error);
+    renderSummary(buildLocalSummary());
     const status = $('#rsvp-status');
-    if (status) {
-      status.classList.add('error');
-      status.textContent = `Could not load RSVP summary: ${error.message}`;
-    }
+    if (status) status.textContent = 'Could not load live RSVP count. Local preview is showing.';
   }
-
-  try {
-    await loadPhotos();
-  } catch (error) {
-    const status = $('#photo-status');
-    if (status) {
-      status.classList.add('error');
-      status.textContent = `Could not load photos: ${error.message}`;
-    }
-  }
-
-  window.setTimeout(() => burstConfetti(2600), 700);
 }
 
 boot();

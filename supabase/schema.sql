@@ -42,7 +42,8 @@ returns table (
   maybe_count bigint,
   not_going_count bigint,
   total_people bigint,
-  public_names text[]
+  public_names text[],
+  team_counts jsonb
 )
 language sql
 stable
@@ -68,14 +69,24 @@ as $$
       order by created_at desc
       limit 50
     ) visible_names
+  ),
+  teams as (
+    select coalesce(jsonb_object_agg(team, total_people order by total_people desc), '{}'::jsonb) as team_counts
+    from (
+      select coalesce(nullif(trim(favorite_team), ''), 'Yuvaan FC') as team, sum(guest_count) as total_people
+      from public.rsvps
+      where attendance = 'going'
+      group by 1
+    ) team_totals
   )
   select
     counts.going_count,
     counts.maybe_count,
     counts.not_going_count,
     counts.total_people,
-    names.public_names
-  from counts, names;
+    names.public_names,
+    teams.team_counts
+  from counts, names, teams;
 $$;
 
 revoke all on function public.get_rsvp_summary() from public;
