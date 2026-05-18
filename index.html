@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#062615" />
+    <meta
+      name="description"
+      content="Yuvaan's 7th Birthday World Cup Party RSVP site. Scan, RSVP, count down to kick off, and upload party photos after the match."
+    />
+    <title>Yuvaan's 7th Birthday World Cup Party</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+    <header class="hero" id="top">
+      <div class="stadium-lights" aria-hidden="true"></div>
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="Yuvaan birthday home">
+          <span class="brand-ball">⚽</span>
+          <span>yuvi.ca</span>
+        </a>
+        <div class="nav-links">
+          <a href="#rsvp">RSVP</a>
+          <a href="#squad">Squad</a>
+          <a href="#photos">Photos</a>
+        </div>
+      </nav>
+
+      <section class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">You are invited to</p>
+          <h1>
+            Yuvaan's
+            <span>7th Birthday</span>
+          </h1>
+          <p class="subtitle">World Cup Party</p>
+          <p class="tagline">One day. One champion. One legend.</p>
+
+          <div class="hero-actions">
+            <a class="button button-primary" href="#rsvp">Claim your spot</a>
+            <a class="button button-secondary" href="https://www.google.com/maps/search/?api=1&query=Rain%20or%20Shine%20Play%20Centre%2055%20Broadway%20St%20Tillsonburg%20ON%20N4G%203P4" target="_blank" rel="noreferrer">Open map</a>
+          </div>
+        </div>
+
+        <aside class="ticket-card" aria-label="VIP ticket details">
+          <p class="ticket-top">Admit one</p>
+          <div class="ticket-body">
+            <p class="vip">VIP Ticket</p>
+            <h2>World Cup 2026</h2>
+            <div class="ticket-row">
+              <span>Player</span>
+              <strong>Yuvaan</strong>
+            </div>
+            <div class="ticket-row">
+              <span>Jersey No.</span>
+              <strong>07</strong>
+            </div>
+            <div class="ticket-row">
+              <span>Team</span>
+              <strong>Legend 07</strong>
+            </div>
+            <div class="ticket-row">
+              <span>Mission</span>
+              <strong>Celebrate</strong>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </header>
+
+    <main>
+      <section class="countdown-section" aria-labelledby="countdown-title">
+        <div class="section-label">Kick off countdown</div>
+        <h2 id="countdown-title">The match starts soon</h2>
+        <div class="countdown" id="countdown" aria-live="polite">
+          <div><strong id="days">00</strong><span>Days</span></div>
+          <div><strong id="hours">00</strong><span>Hours</span></div>
+          <div><strong id="minutes">00</strong><span>Minutes</span></div>
+          <div><strong id="seconds">00</strong><span>Seconds</span></div>
+        </div>
+      </section>
+
+      <section class="details" aria-label="Party details">
+        <article class="detail-card">
+          <span class="detail-icon">📅</span>
+          <p>Date</p>
+          <h3>Saturday, June 6, 2026</h3>
+        </article>
+        <article class="detail-card">
+          <span class="detail-icon">⏱️</span>
+          <p>Kick off</p>
+          <h3>2:00 PM</h3>
+        </article>
+        <article class="detail-card">
+          <span class="detail-icon">🏟️</span>
+          <p>Venue</p>
+          <h3>Rain or Shine Play Centre</h3>
+          <span>55 Broadway St, Tillsonburg, ON N4G 3P4</span>
+        </article>
+        <article class="detail-card">
+          <span class="detail-icon">🏆</span>
+          <p>Dress code</p>
+          <h3>Jersey on</h3>
+          <span>Game face ready</span>
+        </article>
+      </section>
+
+      <section class="rsvp-area" id="rsvp">
+        <div class="rsvp-panel">
+          <div class="section-label">RSVP</div>
+          <h2>Join Team Yuvaan</h2>
+          <p class="section-copy">Tell us if you are going, maybe, or cannot make it. The squad counter updates after every confirmed response.</p>
+
+          <form id="rsvp-form" class="rsvp-form">
+            <label>
+              Player name
+              <input type="text" name="guest_name" autocomplete="name" placeholder="Your name" maxlength="80" required />
+            </label>
+
+            <fieldset>
+              <legend>Match status</legend>
+              <div class="radio-grid">
+                <label><input type="radio" name="attendance" value="going" checked /> Going</label>
+                <label><input type="radio" name="attendance" value="maybe" /> Maybe</label>
+                <label><input type="radio" name="attendance" value="not_going" /> Not going</label>
+              </div>
+            </fieldset>
+
+            <div class="form-grid">
+              <label>
+                Squad size
+                <input type="number" name="guest_count" min="0" max="10" value="1" inputmode="numeric" />
+              </label>
+              <label>
+                Favourite team
+                <input type="text" name="favorite_team" placeholder="Canada, Brazil, Argentina" maxlength="60" />
+              </label>
+            </div>
+
+            <label>
+              Phone or email, optional
+              <input type="text" name="contact" autocomplete="email" placeholder="For host follow up only" maxlength="120" />
+            </label>
+
+            <label>
+              Message for Yuvaan
+              <textarea name="message" rows="3" placeholder="Birthday wish or song request" maxlength="240"></textarea>
+            </label>
+
+            <label class="checkbox-row">
+              <input type="checkbox" name="is_public" checked />
+              Show my name in the who is coming list
+            </label>
+
+            <button class="button button-primary full-width" type="submit">Submit RSVP</button>
+            <p class="form-status" id="rsvp-status" role="status"></p>
+          </form>
+        </div>
+
+        <aside class="squad-panel" id="squad" aria-live="polite">
+          <div class="scoreboard">
+            <p class="scoreboard-label">Who's coming</p>
+            <strong id="going-count">0</strong>
+            <span>players confirmed</span>
+          </div>
+          <div class="mini-stats">
+            <div><strong id="maybe-count">0</strong><span>Maybes</span></div>
+            <div><strong id="not-going-count">0</strong><span>Can't make it</span></div>
+          </div>
+          <div class="guest-list-wrap">
+            <h3>Squad list</h3>
+            <ul class="guest-list" id="guest-list">
+              <li>No players yet. Be first on the team sheet.</li>
+            </ul>
+          </div>
+        </aside>
+      </section>
+
+      <section class="invite-preview-section" aria-labelledby="invite-preview-title">
+        <div class="invite-preview-copy">
+          <div class="section-label">Original invite</div>
+          <h2 id="invite-preview-title">VIP access to the big day</h2>
+          <p>Scan the printed QR code or visit yuvi.ca to RSVP, check details, and come back after the party to add photos.</p>
+        </div>
+        <img src="/invite.jpg" alt="Yuvaan's 7th birthday World Cup party invitation" class="invite-preview" />
+      </section>
+
+      <section class="photo-section" id="photos" aria-labelledby="photos-title">
+        <div class="photo-copy">
+          <div class="section-label">After party photos</div>
+          <h2 id="photos-title">Upload match day memories</h2>
+          <p id="photo-lock-message">Photo upload opens after the final whistle. For testing before the party, add ?photos=1 to the site URL.</p>
+        </div>
+
+        <form id="photo-form" class="photo-form">
+          <label>
+            Your name
+            <input type="text" name="uploader_name" placeholder="Who is uploading?" maxlength="80" />
+          </label>
+          <label>
+            Caption
+            <input type="text" name="caption" placeholder="Best goal celebration ever" maxlength="140" />
+          </label>
+          <label class="file-input">
+            Choose a photo
+            <input type="file" name="photo" accept="image/png,image/jpeg,image/webp,image/gif" required />
+          </label>
+          <button class="button button-secondary full-width" type="submit">Upload photo</button>
+          <p class="form-status" id="photo-status" role="status"></p>
+        </form>
+
+        <div class="photo-gallery" id="photo-gallery" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Questions or changes? RSVP to Neelam at 647 535 4017.</p>
+      <p>This private birthday site is World Cup inspired and is not affiliated with FIFA.</p>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
