@@ -19,6 +19,18 @@
   <body>
     <canvas id="confetti-canvas" aria-hidden="true"></canvas>
 
+    <div class="stadium-intro" id="stadium-intro" aria-label="Stadium intro">
+      <div class="intro-card">
+        <div class="intro-lights" aria-hidden="true"></div>
+        <p class="section-label">Player tunnel</p>
+        <h1>Enter Yuvaan Stadium</h1>
+        <p>Tap to walk out, hear the crowd, and start the birthday match.</p>
+        <button class="button button-primary" id="enter-stadium" type="button">Enter the stadium ⚽</button>
+      </div>
+    </div>
+
+    <div class="goal-banner" id="goal-banner" aria-live="polite">GOOOAAAL!</div>
+
     <header class="hero" id="top">
       <div class="stadium-lights" aria-hidden="true"></div>
       <nav class="nav" aria-label="Primary navigation">
@@ -27,6 +39,7 @@
           <span>yuvi.ca</span>
         </a>
         <div class="nav-links">
+          <a href="#game">Game</a>
           <a href="#rsvp">RSVP</a>
           <a href="#squad">Squad</a>
           <a href="#photos">Photos</a>
@@ -44,7 +57,7 @@
           <p class="tagline">One day. One champion. One legend.</p>
 
           <div class="hero-actions">
-            <a class="button button-primary" href="#rsvp">Claim your spot</a>
+            <a class="button button-primary" href="#game">Play then RSVP</a>
             <a class="button button-secondary" href="https://www.google.com/maps/search/?api=1&query=Rain%20or%20Shine%20Play%20Centre%2055%20Broadway%20St%20Tillsonburg%20ON%20N4G%203P4" target="_blank" rel="noreferrer">Open map</a>
           </div>
         </div>
@@ -112,6 +125,26 @@
         </article>
       </section>
 
+
+      <section class="game-section" id="game" aria-labelledby="game-title">
+        <div class="section-label">Penalty challenge</div>
+        <h2 id="game-title">Score before you RSVP</h2>
+        <p class="section-copy">Pick a corner, take the shot, and unlock the team sheet like a champion.</p>
+        <div class="penalty-game" aria-live="polite">
+          <div class="goal-net">
+            <button type="button" class="shot-target" data-shot="left">Top left</button>
+            <button type="button" class="shot-target" data-shot="middle">Middle</button>
+            <button type="button" class="shot-target" data-shot="right">Top right</button>
+            <div class="goalie" id="goalie">🧤</div>
+            <div class="ball" id="game-ball">⚽</div>
+          </div>
+          <div class="game-controls">
+            <p id="game-status">Choose your corner and shoot!</p>
+            <button type="button" class="button button-secondary" id="reset-game">Reset shot</button>
+          </div>
+        </div>
+      </section>
+
       <section class="rsvp-area" id="rsvp">
         <div class="rsvp-panel">
           <div class="section-label">RSVP</div>
@@ -139,8 +172,15 @@
                 <input type="number" name="guest_count" min="0" max="10" value="1" inputmode="numeric" />
               </label>
               <label>
-                Favourite team
-                <input type="text" name="favorite_team" placeholder="Canada, Brazil, Argentina" maxlength="60" />
+                Pick your dream team
+                <select name="favorite_team">
+                  <option value="Yuvaan FC">Yuvaan FC</option>
+                  <option value="Team Messi">Team Messi</option>
+                  <option value="Team Ronaldo">Team Ronaldo</option>
+                  <option value="Team Mbappe">Team Mbappe</option>
+                  <option value="Team Canada">Team Canada</option>
+                  <option value="Team Brazil">Team Brazil</option>
+                </select>
               </label>
             </div>
 
@@ -175,12 +215,36 @@
             <div><strong id="not-going-count">0</strong><span>Can't make it</span></div>
           </div>
           <div class="guest-list-wrap">
+            <h3>Starting lineup</h3>
+            <div class="pitch-lineup" id="pitch-lineup">
+              <span>No players yet. Be first on the team sheet.</span>
+            </div>
             <h3>Squad list</h3>
             <ul class="guest-list" id="guest-list">
               <li>No players yet. Be first on the team sheet.</li>
             </ul>
           </div>
         </aside>
+      </section>
+
+      <section class="player-card-section" id="player-card-section" aria-labelledby="player-card-title">
+        <div>
+          <div class="section-label">Player card</div>
+          <h2 id="player-card-title">Your birthday squad card</h2>
+          <p class="section-copy">After a guest RSVPs, the site creates a collectible style player card they can screenshot and share.</p>
+        </div>
+        <article class="player-card" id="player-card">
+          <div class="card-rating" id="card-rating">97</div>
+          <div class="card-position">ST</div>
+          <div class="card-avatar">⚽</div>
+          <h3 id="card-name">Future Legend</h3>
+          <p id="card-team">Yuvaan FC</p>
+          <div class="card-stats">
+            <span><strong>99</strong> FUN</span>
+            <span><strong>97</strong> SPEED</span>
+            <span><strong>100</strong> PARTY</span>
+          </div>
+        </article>
       </section>
 
       <section class="invite-preview-section" aria-labelledby="invite-preview-title">

@@ -839,3 +839,355 @@ textarea::placeholder {
     font-size: 5.4rem;
   }
 }
+
+/* Kid friendly interactive upgrades */
+.stadium-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 50% 10%, rgba(244, 199, 95, 0.34), transparent 18rem),
+    radial-gradient(circle at 20% 85%, rgba(37, 99, 235, 0.24), transparent 16rem),
+    linear-gradient(135deg, rgba(2, 10, 7, 0.96), rgba(3, 56, 29, 0.96));
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.stadium-intro.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.intro-card {
+  position: relative;
+  overflow: hidden;
+  width: min(680px, 100%);
+  padding: clamp(28px, 7vw, 64px);
+  text-align: center;
+  border: 1px solid rgba(244, 199, 95, 0.5);
+  border-radius: var(--radius-xl);
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow);
+}
+
+.intro-card h1,
+.game-section h2,
+.player-card-section h2 {
+  margin: 0;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(3.4rem, 10vw, 7.5rem);
+  line-height: 0.92;
+  color: var(--gold);
+}
+
+.intro-card p:not(.section-label) {
+  margin: 14px auto 28px;
+  max-width: 520px;
+  font-weight: 800;
+}
+
+.intro-lights {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 120px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 5px, transparent 15px) 0 26px / 58px 58px repeat-x;
+  opacity: 0.46;
+  pointer-events: none;
+}
+
+.goal-banner {
+  position: fixed;
+  left: 50%;
+  top: 20px;
+  z-index: 90;
+  transform: translate(-50%, -140%) rotate(-2deg);
+  padding: 12px 28px;
+  border: 2px solid var(--gold);
+  border-radius: 999px;
+  background: #03110b;
+  color: var(--gold);
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(2rem, 7vw, 5rem);
+  line-height: 1;
+  letter-spacing: 0.05em;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.38);
+  transition: transform 0.28s ease;
+  pointer-events: none;
+}
+
+.goal-banner.is-visible {
+  transform: translate(-50%, 0) rotate(-2deg);
+}
+
+.game-section,
+.player-card-section {
+  width: min(1180px, calc(100% - 36px));
+  margin: 52px auto;
+  padding: clamp(22px, 5vw, 42px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, rgba(3, 17, 11, 0.86), rgba(7, 56, 29, 0.55));
+  box-shadow: var(--shadow);
+}
+
+.penalty-game {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr);
+  gap: 26px;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.goal-net {
+  position: relative;
+  min-height: 360px;
+  border: 8px solid rgba(255, 250, 240, 0.86);
+  border-bottom-width: 18px;
+  border-radius: 24px 24px 14px 14px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.18) 2px, transparent 2px) 0 0 / 44px 44px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18) 2px, transparent 2px) 0 0 / 44px 44px,
+    radial-gradient(circle at 50% 110%, rgba(244, 199, 95, 0.22), transparent 12rem),
+    rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.shot-target {
+  position: absolute;
+  top: 18px;
+  width: 30%;
+  height: 42%;
+  border: 1px solid rgba(244, 199, 95, 0.48);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 250, 240, 0.9);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.shot-target:nth-of-type(1) { left: 16px; }
+.shot-target:nth-of-type(2) { left: 50%; transform: translateX(-50%); }
+.shot-target:nth-of-type(3) { right: 16px; }
+.shot-target:hover,
+.shot-target.is-picked {
+  background: rgba(244, 199, 95, 0.28);
+}
+
+.goalie,
+.ball {
+  position: absolute;
+  transition: transform 0.55s cubic-bezier(.17,.67,.3,1.35);
+}
+
+.goalie {
+  left: 50%;
+  bottom: 70px;
+  font-size: 5rem;
+  transform: translateX(-50%);
+}
+
+.goalie.dive-left { transform: translateX(-230%) rotate(-22deg); }
+.goalie.dive-middle { transform: translateX(-50%) translateY(-34px) scale(1.08); }
+.goalie.dive-right { transform: translateX(130%) rotate(22deg); }
+
+.ball {
+  left: 50%;
+  bottom: 8px;
+  font-size: 3.2rem;
+  transform: translateX(-50%);
+}
+
+.ball.shoot-left { transform: translate(-280%, -245px) rotate(-720deg); }
+.ball.shoot-middle { transform: translate(-50%, -245px) rotate(720deg); }
+.ball.shoot-right { transform: translate(180%, -245px) rotate(720deg); }
+
+.game-controls {
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-lg);
+  background: rgba(0, 0, 0, 0.24);
+}
+
+.game-controls p {
+  margin: 0 0 18px;
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+select {
+  width: 100%;
+  border: 1px solid rgba(244, 199, 95, 0.32);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: rgba(0, 0, 0, 0.32);
+  color: var(--white);
+}
+
+.pitch-lineup {
+  position: relative;
+  min-height: 320px;
+  margin: 12px 0 24px;
+  border: 2px solid rgba(255, 250, 240, 0.34);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 54px, rgba(255, 255, 255, 0.25) 56px 58px, transparent 60px),
+    linear-gradient(90deg, transparent 49.4%, rgba(255, 255, 255, 0.24) 50%, transparent 50.6%),
+    repeating-linear-gradient(90deg, rgba(15, 106, 55, 0.7) 0 54px, rgba(7, 56, 29, 0.7) 54px 108px);
+  overflow: hidden;
+}
+
+.pitch-lineup > span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  text-align: center;
+  font-weight: 900;
+}
+
+.lineup-player {
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-width: 70px;
+  transform: translate(-50%, -50%);
+  font-size: 0.78rem;
+  text-align: center;
+  color: var(--white);
+}
+
+.lineup-player span {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: var(--gold);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.32);
+}
+
+.lineup-player strong {
+  max-width: 78px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot-1 { left: 12%; top: 50%; }
+.slot-2 { left: 28%; top: 25%; }
+.slot-3 { left: 28%; top: 75%; }
+.slot-4 { left: 44%; top: 18%; }
+.slot-5 { left: 44%; top: 50%; }
+.slot-6 { left: 44%; top: 82%; }
+.slot-7 { left: 62%; top: 28%; }
+.slot-8 { left: 62%; top: 72%; }
+.slot-9 { left: 78%; top: 20%; }
+.slot-10 { left: 82%; top: 50%; }
+.slot-11 { left: 78%; top: 80%; }
+
+.player-card-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  gap: 28px;
+  align-items: center;
+}
+
+.player-card {
+  position: relative;
+  min-height: 440px;
+  padding: 28px 22px;
+  border-radius: 34px;
+  text-align: center;
+  background:
+    linear-gradient(135deg, rgba(255, 225, 160, 0.98), rgba(244, 199, 95, 0.82) 45%, rgba(126, 83, 17, 0.92)),
+    radial-gradient(circle at 50% 15%, rgba(255,255,255,0.9), transparent 8rem);
+  color: #2d1b04;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.42);
+  transform-style: preserve-3d;
+  transition: transform 0.65s ease;
+}
+
+.player-card.is-flipped {
+  animation: card-pop 0.85s ease both;
+}
+
+.card-rating {
+  position: absolute;
+  top: 28px;
+  left: 24px;
+  font-size: 3.2rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.card-position {
+  position: absolute;
+  top: 84px;
+  left: 30px;
+  font-weight: 900;
+}
+
+.card-avatar {
+  margin: 70px auto 18px;
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  border-radius: 999px;
+  font-size: 4.5rem;
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.player-card h3 {
+  margin: 0;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 3.2rem;
+  line-height: 0.95;
+}
+
+.player-card p {
+  margin: 8px 0 22px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.card-stats {
+  display: grid;
+  gap: 8px;
+  font-weight: 900;
+}
+
+.card-stats span {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(45, 27, 4, 0.28);
+  padding-top: 8px;
+}
+
+@keyframes card-pop {
+  0% { transform: rotateY(0) scale(0.96); }
+  45% { transform: rotateY(12deg) scale(1.04); }
+  100% { transform: rotateY(0) scale(1); }
+}
+
+@media (max-width: 780px) {
+  .penalty-game,
+  .player-card-section {
+    grid-template-columns: 1fr;
+  }
+
+  .goal-net {
+    min-height: 300px;
+  }
+
+  .goalie { font-size: 4rem; }
+  .ball { font-size: 2.6rem; }
+  .ball.shoot-left { transform: translate(-220%, -205px) rotate(-720deg); }
+  .ball.shoot-middle { transform: translate(-50%, -205px) rotate(720deg); }
+  .ball.shoot-right { transform: translate(120%, -205px) rotate(720deg); }
+}

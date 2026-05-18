@@ -7,6 +7,7 @@ const PHOTO_BUCKET = import.meta.env.VITE_SUPABASE_PHOTO_BUCKET || 'yuvi-party-p
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 const DEMO_RSVP_KEY = 'yuvi_rsvps_demo';
+const INTRO_KEY = 'yuvi_stadium_intro_seen';
 
 const supabaseConfigured =
   SUPABASE_URL.startsWith('https://') &&
@@ -95,6 +96,7 @@ function renderSummary(summary) {
     const item = document.createElement('li');
     item.textContent = 'No players yet. Be first on the team sheet.';
     guestList.appendChild(item);
+    renderLineup([]);
     return;
   }
 
@@ -103,6 +105,51 @@ function renderSummary(summary) {
     item.textContent = name;
     guestList.appendChild(item);
   });
+
+  renderLineup(publicNames);
+}
+
+function renderLineup(publicNames = []) {
+  const lineup = $('#pitch-lineup');
+  if (!lineup) return;
+
+  lineup.innerHTML = '';
+  if (!publicNames.length) {
+    const empty = document.createElement('span');
+    empty.textContent = 'No players yet. Be first on the team sheet.';
+    lineup.appendChild(empty);
+    return;
+  }
+
+  publicNames.slice(0, 11).forEach((name, index) => {
+    const player = document.createElement('div');
+    player.className = `lineup-player slot-${index + 1}`;
+    player.innerHTML = `<span>⚽</span><strong>${name}</strong>`;
+    lineup.appendChild(player);
+  });
+}
+
+function updatePlayerCard(rsvp) {
+  const card = $('#player-card');
+  if (!card || !rsvp) return;
+
+  const name = rsvp.display_name || rsvp.guest_name || 'Future Legend';
+  const team = rsvp.favorite_team || 'Yuvaan FC';
+  const rating = rsvp.attendance === 'going' ? 99 : rsvp.attendance === 'maybe' ? 88 : 77;
+
+  setText('#card-name', name);
+  setText('#card-team', team);
+  setText('#card-rating', rating);
+  card.classList.remove('is-flipped');
+  window.setTimeout(() => card.classList.add('is-flipped'), 60);
+}
+
+function showGoalBanner(text = 'GOOOAAAL!') {
+  const banner = $('#goal-banner');
+  if (!banner) return;
+  banner.textContent = text;
+  banner.classList.add('is-visible');
+  window.setTimeout(() => banner.classList.remove('is-visible'), 1700);
 }
 
 async function loadRsvpSummary() {
@@ -179,7 +226,9 @@ function setupRsvpForm() {
       form.querySelector('input[name="is_public"]').checked = true;
 
       await loadRsvpSummary();
-      burstConfetti(rsvp.attendance === 'going' ? 3200 : 1600);
+      updatePlayerCard(rsvp);
+      showGoalBanner(rsvp.attendance === 'going' ? 'GOOOAAAL! RSVP SAVED' : 'RSVP SAVED!');
+      burstConfetti(rsvp.attendance === 'going' ? 4200 : 1800);
     } catch (error) {
       status.classList.add('error');
       status.textContent = error.message || 'Something went wrong. Please try again.';
@@ -434,7 +483,70 @@ function burstConfetti(duration = 2600) {
   requestAnimationFrame(frame);
 }
 
+
+function setupStadiumIntro() {
+  const intro = $('#stadium-intro');
+  const button = $('#enter-stadium');
+  if (!intro || !button) return;
+
+  const alreadySeen = localStorage.getItem(INTRO_KEY) === 'yes';
+  if (alreadySeen) {
+    intro.classList.add('is-hidden');
+    return;
+  }
+
+  button.addEventListener('click', () => {
+    localStorage.setItem(INTRO_KEY, 'yes');
+    intro.classList.add('is-hidden');
+    showGoalBanner('WELCOME TO YUVAAN STADIUM');
+    burstConfetti(1800);
+  });
+}
+
+function setupPenaltyGame() {
+  const targets = [...document.querySelectorAll('.shot-target')];
+  const goalie = $('#goalie');
+  const ball = $('#game-ball');
+  const status = $('#game-status');
+  const reset = $('#reset-game');
+  if (!targets.length || !goalie || !ball || !status || !reset) return;
+
+  const positions = ['left', 'middle', 'right'];
+  const resetShot = () => {
+    ball.className = 'ball';
+    goalie.className = 'goalie';
+    targets.forEach((target) => { target.disabled = false; target.classList.remove('is-picked'); });
+    status.textContent = 'Choose your corner and shoot!';
+  };
+
+  targets.forEach((target) => {
+    target.addEventListener('click', () => {
+      const shot = target.dataset.shot;
+      const goalieDive = positions[Math.floor(Math.random() * positions.length)];
+      const scored = shot !== goalieDive || Math.random() > 0.72;
+
+      targets.forEach((item) => { item.disabled = true; item.classList.remove('is-picked'); });
+      target.classList.add('is-picked');
+      goalie.className = `goalie dive-${goalieDive}`;
+      ball.className = `ball shoot-${shot}`;
+
+      if (scored) {
+        status.textContent = 'GOAL! You unlocked champion energy for the RSVP.';
+        showGoalBanner('GOOOAAAL!');
+        burstConfetti(2200);
+      } else {
+        status.textContent = 'Saved by the goalie! Try again or RSVP anyway.';
+        showGoalBanner('BIG SAVE!');
+      }
+    });
+  });
+
+  reset.addEventListener('click', resetShot);
+}
+
 async function boot() {
+  setupStadiumIntro();
+  setupPenaltyGame();
   startCountdown();
   setupRsvpForm();
   setupPhotoForm();
