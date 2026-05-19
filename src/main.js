@@ -315,7 +315,11 @@ function setupRsvpModal() {
   if (!modal) return;
 
   $$('.open-rsvp').forEach((button) => {
-    button.addEventListener('click', () => openRsvpModal(true));
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openRsvpModal(true);
+    });
   });
 
   modal.addEventListener('click', (event) => {
@@ -439,6 +443,12 @@ function setupPhotoSection() {
     section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
+  loadExistingPhotos();
+
+  if (queryParams.has('photos')) {
+    section?.classList.add('is-open');
+  }
+
   if (!form) return;
 
   if (!photoUploadUnlocked) {
@@ -459,7 +469,9 @@ function setupPhotoSection() {
     }
 
     if (!supabase) {
-      addPhotoCard(URL.createObjectURL(file), formData.get('caption') || 'Party highlight');
+      const previewUrl = URL.createObjectURL(file);
+      addPhotoCard(previewUrl, formData.get('caption') || 'Party highlight');
+      updateGalleryPreview([{ public_url: previewUrl, caption: formData.get('caption') || 'Party highlight' }], true);
       if (status) status.textContent = 'Preview photo added locally. Connect Supabase for live uploads.';
       form.reset();
       return;
@@ -484,6 +496,7 @@ function setupPhotoSection() {
       if (insertError) throw insertError;
 
       addPhotoCard(publicUrl, metadata.caption || 'Party highlight');
+      updateGalleryPreview([metadata], true);
       if (status) status.textContent = 'Highlight uploaded!';
       form.reset();
       burstConfetti(60);
@@ -494,13 +507,74 @@ function setupPhotoSection() {
   });
 }
 
-function addPhotoCard(url, caption) {
+async function loadExistingPhotos() {
   const grid = $('#photo-grid');
-  if (!grid) return;
+  const status = $('#photo-status');
+  const openButton = $('#open-photo-section');
+
+  if (!grid || !supabase) return;
+
+  try {
+    const { data, error } = await supabase
+      .from('party_photos')
+      .select('caption, public_url, file_path, created_at')
+      .order('created_at', { ascending: false })
+      .limit(30);
+
+    if (error) throw error;
+
+    const photos = (data || []).map((photo) => {
+      if (photo.public_url) return photo;
+      if (!photo.file_path) return photo;
+      const { data: publicData } = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(photo.file_path);
+      return { ...photo, public_url: publicData.publicUrl };
+    }).filter((photo) => photo.public_url);
+
+    grid.innerHTML = '';
+    photos.forEach((photo) => addPhotoCard(photo.public_url, photo.caption || 'Party highlight', false));
+    updateGalleryPreview(photos);
+
+    if (openButton) {
+      openButton.textContent = photos.length ? `View ${photos.length} highlights` : 'View gallery';
+    }
+    if (status && photos.length) {
+      status.textContent = `${photos.length} uploaded highlight${photos.length === 1 ? '' : 's'} loaded.`;
+    }
+  } catch (error) {
+    console.error(error);
+    if (status) status.textContent = 'Could not load uploaded photos. Please check Supabase policies.';
+  }
+}
+
+function updateGalleryPreview(photos, prepend = false) {
+  const thumbs = $('.gallery-panel .thumbs');
+  if (!thumbs || !photos?.length) return;
+
+  const current = Array.from(thumbs.querySelectorAll('img')).map((img) => img.src);
+  const newImages = photos
+    .map((photo) => photo.public_url)
+    .filter((url) => url && !current.includes(url))
+    .slice(0, 4)
+    .map((url) => `<img src="${escapeHtml(url)}" alt="Uploaded party highlight" />`)
+    .join('');
+
+  if (!newImages) return;
+  if (prepend) thumbs.insertAdjacentHTML('afterbegin', newImages);
+  else thumbs.innerHTML = newImages;
+}
+
+function addPhotoCard(url, caption, prepend = true) {
+  const grid = $('#photo-grid');
+  if (!grid || !url) return;
+
+  const existing = Array.from(grid.querySelectorAll('img')).some((img) => img.src === url);
+  if (existing) return;
+
   const card = document.createElement('article');
   card.className = 'photo-card';
-  card.innerHTML = `<img src="${escapeHtml(url)}" alt="Party upload" /><p>${escapeHtml(caption)}</p>`;
-  grid.prepend(card);
+  card.innerHTML = `<img src="${escapeHtml(url)}" alt="Party upload" loading="lazy" /><p>${escapeHtml(caption)}</p>`;
+  if (prepend) grid.prepend(card);
+  else grid.append(card);
 }
 
 function setupConfetti() {

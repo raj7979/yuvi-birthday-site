@@ -2144,3 +2144,72 @@ textarea:focus {
     100% { transform: translate(146px, -128px) scale(.66) rotate(780deg); }
   }
 }
+
+
+/* Dashboard v4 mobile fixes: remove oversized yellow RSVP banner and prevent hidden click overlay */
+.quick-rsvp-bar {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.main-shell, .dashboard, .panel {
+  pointer-events: auto;
+}
+
+.hero-actions .open-rsvp,
+.mobile-tabbar .open-rsvp {
+  pointer-events: auto;
+}
+
+@media (max-width: 860px) {
+  .flag-ribbon {
+    margin-top: 10px;
+  }
+
+  .dashboard {
+    padding-top: 12px;
+  }
+
+  .team-panel {
+    margin-top: 0;
+  }
+
+  .hero-actions {
+    position: sticky;
+    bottom: 92px;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .hero-actions .btn {
+    min-height: 54px;
+    padding: 12px 14px;
+    font-size: 1.05rem;
+  }
+
+  .mobile-tabbar {
+    z-index: 120;
+  }
+
+  .mobile-tabbar .open-rsvp {
+    transform: translateY(-8px);
+  }
+}
+
+@media (max-width: 520px) {
+  .hero-actions {
+    bottom: 86px;
+  }
+
+  .hero-actions .btn-ghost {
+    display: none;
+  }
+
+  .hero-actions {
+    grid-template-columns: 1fr;
+  }
+}
