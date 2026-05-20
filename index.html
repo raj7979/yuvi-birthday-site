@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#050817" />
     <meta
       name="description"
-      content="Yuvaan's 7th Birthday World Cup Party RSVP site with countdown, penalty game, country teams, player cards, live squad, and after party photos."
+      content="Yuvaan's 7th Birthday World Cup Party RSVP site with countdown, photo booth player card generator, penalty game, live squad, and after party photos."
     />
     <title>Yuvaan World Cup 2026 Birthday Party</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -39,7 +39,7 @@
 
         <nav class="desktop-nav" aria-label="Primary navigation">
           <a href="#top">Home</a>
-          <a href="#teams">Teams</a>
+          <a href="#teams">Photo Booth</a>
           <a href="#schedule">Schedule</a>
           <a href="#squad">Squad</a>
           <a href="#photos">Gallery</a>
@@ -65,7 +65,7 @@
             <p class="welcome-stars">★ ★ Welcome to ★ ★</p>
             <h1>YUVAAN</h1>
             <h2>World Cup <span>2026</span></h2>
-            <p class="tagline">Road to Glory!</p>
+            <p class="tagline">The ultimate birthday celebration</p>
 
             <div class="match-strip" id="schedule" aria-label="Birthday party details">
               <div><span>📅</span><small>Matchday</small><strong>Saturday<br />June 6, 2026</strong></div>
@@ -91,20 +91,69 @@
           </div>
         </aside>
 
-        <section class="panel team-panel" id="teams">
-          <div class="panel-heading"><span>👥</span><h2>Choose your team</h2></div>
-          <div class="team-card-grid" role="group" aria-label="Team choices">
-            <button class="team-card-button argentina" type="button" data-team="Argentina FC" aria-pressed="false">
-              <span class="team-flag">🇦🇷</span><strong>Argentina FC</strong><em data-team-live="Argentina FC">0 players</em>
-            </button>
-            <button class="team-card-button brazil is-selected" type="button" data-team="Brazil FC" aria-pressed="true">
-              <span class="team-flag">🇧🇷</span><strong>Brazil FC</strong><em data-team-live="Brazil FC">0 players</em>
-            </button>
-            <button class="team-card-button france" type="button" data-team="France FC" aria-pressed="false">
-              <span class="team-flag">🇫🇷</span><strong>France FC</strong><em data-team-live="France FC">0 players</em>
-            </button>
+        <section class="panel photo-booth-panel" id="teams">
+          <div class="panel-heading"><span>📸</span><h2>Photo booth player card</h2></div>
+          <p class="panel-subtitle">Pick a team, choose a superstar style, snap your face in the oval guide, then download or post your custom card.</p>
+
+          <div class="booth-layout">
+            <div class="booth-controls">
+              <div class="booth-step">
+                <h3><span>1</span> Choose your team</h3>
+                <div class="booth-team-grid" role="group" aria-label="Photo booth team choices">
+                  <button class="booth-team-button is-selected" type="button" data-team="Brazil FC" aria-pressed="true"><span>🇧🇷</span><strong>Brazil FC</strong></button>
+                  <button class="booth-team-button" type="button" data-team="Argentina FC" aria-pressed="false"><span>🇦🇷</span><strong>Argentina FC</strong></button>
+                  <button class="booth-team-button" type="button" data-team="France FC" aria-pressed="false"><span>🇫🇷</span><strong>France FC</strong></button>
+                  <button class="booth-team-button" type="button" data-team="Portugal FC" aria-pressed="false"><span>🇵🇹</span><strong>Portugal FC</strong></button>
+                  <button class="booth-team-button" type="button" data-team="Canada FC" aria-pressed="false"><span>🇨🇦</span><strong>Canada FC</strong></button>
+                  <button class="booth-team-button" type="button" data-team="Yuvaan FC" aria-pressed="false"><span>⚽</span><strong>Yuvaan FC</strong></button>
+                </div>
+              </div>
+
+              <div class="booth-step">
+                <h3><span>2</span> Choose your superstar style</h3>
+                <div class="player-choice-grid" role="group" aria-label="Favorite player choices">
+                  <button class="player-choice-button is-selected" type="button" data-player="Lionel Messi" aria-pressed="true"><span>🐐</span><strong>Lionel Messi</strong><em>Playmaker</em></button>
+                  <button class="player-choice-button" type="button" data-player="Cristiano Ronaldo" aria-pressed="false"><span>🚀</span><strong>Cristiano Ronaldo</strong><em>Captain</em></button>
+                  <button class="player-choice-button" type="button" data-player="Kylian Mbappé" aria-pressed="false"><span>⚡</span><strong>Kylian Mbappé</strong><em>Speedster</em></button>
+                  <button class="player-choice-button" type="button" data-player="Neymar Jr." aria-pressed="false"><span>✨</span><strong>Neymar Jr.</strong><em>Skill master</em></button>
+                </div>
+              </div>
+
+              <div class="booth-step camera-step">
+                <h3><span>3</span> Capture your face</h3>
+                <div class="camera-box">
+                  <div class="camera-oval-frame" aria-label="Oval face camera guide">
+                    <video id="booth-video" autoplay muted playsinline></video>
+                    <span class="face-guide" aria-hidden="true"></span>
+                  </div>
+                  <canvas id="booth-capture-canvas" width="720" height="900" hidden></canvas>
+                  <div class="camera-placeholder" id="camera-placeholder">
+                    <strong>Oval face preview</strong>
+                    <span>Center your face inside the oval guide, then tap Capture.</span>
+                  </div>
+                </div>
+                <div class="booth-actions">
+                  <button class="btn btn-small btn-gold" type="button" id="start-camera">Start camera</button>
+                  <button class="btn btn-small btn-pink" type="button" id="capture-face">Capture face</button>
+                  <label class="btn btn-small btn-ghost upload-selfie">Upload selfie<input type="file" id="face-upload" accept="image/*" capture="user" /></label>
+                </div>
+                <p class="booth-status" id="booth-status">Your selfie stays in this browser until you choose to post the finished card to Media Highlights.</p>
+              </div>
+            </div>
+
+            <div class="booth-preview-card">
+              <div class="card-toolbar">
+                <span>Social ready card</span>
+                <strong id="booth-selection-summary">Brazil FC · Lionel Messi</strong>
+              </div>
+              <canvas id="generated-player-card" width="1080" height="1350" aria-label="Generated player card preview"></canvas>
+              <div class="card-actions">
+                <button class="btn btn-gold" type="button" id="download-card">Download card</button>
+                <button class="btn btn-pink" type="button" id="post-card">Post to highlights</button>
+              </div>
+              <p class="booth-status card-post-status" id="card-post-status">Create your card, then download it or post it to Media Highlights.</p>
+            </div>
           </div>
-          <button class="btn btn-small btn-ghost open-rsvp" type="button">View all teams</button>
         </section>
 
         <section class="panel penalty-panel" id="game">
@@ -125,20 +174,6 @@
           </div>
           <button class="btn btn-pink" type="button" id="shoot-button">Play now</button>
           <p class="challenge-note" id="game-status">3 shots challenge</p>
-        </section>
-
-        <section class="panel player-card-panel" id="player-card-section">
-          <div class="panel-heading"><span>⭐</span><h2>Your player card</h2></div>
-          <p class="panel-subtitle">Welcome to the squad</p>
-          <article class="player-card" id="player-card">
-            <img src="/assets/player-card-art.png" alt="Sample player card" />
-            <div class="player-card-overlay">
-              <strong id="card-name">Future Legend</strong>
-              <span id="card-team">Yuvaan FC</span>
-              <em id="card-rating">97</em>
-            </div>
-          </article>
-          <button class="btn btn-ghost open-rsvp" type="button">Create my card</button>
         </section>
 
         <section class="panel lineup-panel" id="squad">
@@ -164,14 +199,6 @@
           </details>
         </section>
 
-        <section class="panel tournament-panel">
-          <div class="panel-heading"><span>🏆</span><h2>Tournament table</h2></div>
-          <div id="team-counts" class="team-counts">
-            <p class="team-empty">Pick a country when you RSVP and the tournament table will light up.</p>
-          </div>
-          <button class="btn btn-small btn-ghost open-rsvp" type="button">Join a team</button>
-        </section>
-
         <section class="panel trophy-panel" id="trophy-room">
           <div class="panel-heading"><span>🏆</span><h2>Trophy room</h2></div>
           <p class="panel-subtitle">Unlock achievements</p>
@@ -195,15 +222,9 @@
         </section>
 
         <section class="panel gallery-panel" id="photos">
-          <div class="panel-heading compact"><span>📸</span><h2>Match highlights</h2></div>
+          <div class="panel-heading compact"><span>📸</span><h2>Media highlights</h2></div>
           <div class="thumbs"><img src="/assets/thumb-one.jpg" alt="Soccer highlight one" /><img src="/assets/thumb-two.jpg" alt="Soccer highlight two" /></div>
-          <button class="btn btn-small btn-ghost" type="button" id="open-photo-section">View gallery & upload</button>
-        </section>
-
-        <section class="panel dress-panel">
-          <div class="panel-heading compact"><span>👕</span><h2>Dress code</h2></div>
-          <p>Wear your favorite jersey.</p>
-          <div class="jerseys" aria-hidden="true"><span>🇵🇹</span><span>🇧🇷</span><span>🇦🇷</span><span>🇫🇷</span></div>
+          <button class="btn btn-small btn-ghost" type="button" id="open-photo-section">View media highlights</button>
         </section>
 
         <section class="panel rules-panel">
@@ -212,8 +233,8 @@
         </section>
 
         <section class="panel photos-panel hidden-panel" id="photo-section">
-          <div class="panel-heading"><span>📸</span><h2>After party photo upload</h2></div>
-          <p id="photo-lock-copy" class="panel-subtitle">Photo upload opens after the party. Add <strong>?photos=1</strong> to the URL to test.</p>
+          <div class="panel-heading"><span>📸</span><h2>Media highlights upload</h2></div>
+          <p id="photo-lock-copy" class="panel-subtitle">Photo uploads are open now. Add party photos or post a generated player card from the Photo Booth.</p>
           <form id="photo-form" class="photo-form" enctype="multipart/form-data">
             <label>Your name<input type="text" name="uploader_name" maxlength="80" placeholder="Optional" /></label>
             <label>Caption<input type="text" name="caption" maxlength="140" placeholder="Best goal celebration!" /></label>
@@ -228,7 +249,7 @@
 
     <nav class="mobile-tabbar" aria-label="Mobile navigation">
       <a href="#top">🏠<span>Home</span></a>
-      <a href="#teams">👥<span>Teams</span></a>
+      <a href="#teams">📸<span>Booth</span></a>
       <button class="open-rsvp" type="button">⚽<span>RSVP</span></button>
       <a href="#squad">👕<span>Squad</span></a>
       <a href="#photos">📸<span>Gallery</span></a>

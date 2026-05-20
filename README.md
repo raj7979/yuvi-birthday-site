@@ -8,8 +8,8 @@ It includes the features requested from the invite:
 2. Confetti animation on load and after RSVP
 3. RSVP form with Going, Maybe, and Not Going
 4. Who is coming counter and public squad list
-5. Photo upload after the party
-6. Original invite preview image
+5. Interactive photo booth with team selection, superstar style selection, camera capture, player card generation, and download
+6. Photo upload after the party
 7. Supabase database and storage setup
 8. Cloudflare Pages ready Vite project
 
@@ -66,6 +66,12 @@ Preview the production build:
 ```bash
 npm run preview
 ```
+
+## Photo booth player cards
+
+The photo booth runs entirely in the browser. Camera photos are used locally to draw the downloadable card on a canvas and are not uploaded to Supabase.
+
+Camera capture works on localhost while testing and on HTTPS when deployed to Cloudflare Pages.
 
 ## Supabase setup
 
