@@ -362,6 +362,7 @@ function setupPhotoBooth() {
 
   $('#start-camera')?.addEventListener('click', startBoothCamera);
   $('#capture-face')?.addEventListener('click', captureBoothFace);
+  $('#face-upload')?.addEventListener('click', (event) => { event.currentTarget.value = ''; });
   $('#face-upload')?.addEventListener('change', handleFaceUpload);
   $('#download-card')?.addEventListener('click', downloadGeneratedCard);
   $('#post-card')?.addEventListener('click', postGeneratedCardToHighlights);
@@ -388,38 +389,110 @@ function getPlayerPreset(player) {
   return PLAYER_PRESETS[player] || PLAYER_PRESETS['Lionel Messi'];
 }
 
+
 async function startBoothCamera() {
   const video = $('#booth-video');
   const placeholder = $('#camera-placeholder');
-  if (!video) return;
 
-  if (!navigator.mediaDevices?.getUserMedia) {
-    setBoothStatus('Camera is not available in this browser. Upload a selfie instead.');
+  if (!video) {
+    setBoothStatus('Camera preview is not ready. Try again or upload a selfie.');
+    return;
+  }
+
+  if (!window.isSecureContext) {
+    setBoothStatus('Camera needs HTTPS. You are safe on yuvi.ca, or upload a selfie.');
+    return;
+  }
+
+  if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+    setBoothStatus('Camera is not supported in this browser. Upload a selfie instead.');
     return;
   }
 
   try {
-    if (boothState.stream) boothState.stream.getTracks().forEach((track) => track.stop());
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: false,
-      video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 720 } }
-    });
+    stopBoothCamera();
+    setBoothStatus('Opening camera. Please allow camera access.');
+
+    video.setAttribute('autoplay', '');
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.autoplay = true;
+    video.muted = true;
+    video.playsInline = true;
+
+    const constraints = [
+      { audio: false, video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 960 } } },
+      { audio: false, video: { facingMode: 'user' } },
+      { audio: false, video: true }
+    ];
+
+    let stream = null;
+    let lastError = null;
+
+    for (const constraint of constraints) {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(constraint);
+        break;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    if (!stream) throw lastError || new Error('Camera unavailable');
+
     boothState.stream = stream;
     video.srcObject = stream;
-    await video.play();
     video.classList.add('is-live');
     placeholder?.classList.add('is-hidden');
-    setBoothStatus('Camera ready. Center your face and tap Capture face.');
+
+    await waitForVideoReady(video);
+    await video.play();
+
+    $('#capture-face')?.removeAttribute('disabled');
+    setBoothStatus('Camera ready. Center your face in the oval and tap Capture face.');
   } catch (error) {
-    console.error(error);
-    setBoothStatus('Camera permission was blocked or unavailable. Upload a selfie instead.');
+    console.error('Camera failed:', error);
+    const name = error?.name || 'CameraError';
+    const message = error?.message ? ` ${error.message}` : '';
+    setBoothStatus(`${name}:${message} Upload a selfie instead.`);
+    $('#camera-placeholder')?.classList.remove('is-hidden');
   }
+}
+
+function stopBoothCamera() {
+  if (boothState.stream) {
+    boothState.stream.getTracks().forEach((track) => track.stop());
+    boothState.stream = null;
+  }
+}
+
+function waitForVideoReady(video) {
+  return new Promise((resolve) => {
+    if (video.videoWidth && video.videoHeight) {
+      resolve();
+      return;
+    }
+
+    const done = () => {
+      cleanup();
+      resolve();
+    };
+
+    const cleanup = () => {
+      video.removeEventListener('loadedmetadata', done);
+      video.removeEventListener('canplay', done);
+    };
+
+    video.addEventListener('loadedmetadata', done, { once: true });
+    video.addEventListener('canplay', done, { once: true });
+    window.setTimeout(done, 1200);
+  });
 }
 
 function captureBoothFace() {
   const video = $('#booth-video');
   const canvas = $('#booth-capture-canvas');
-  if (!video || !canvas || !video.videoWidth) {
+  if (!video || !canvas || !video.videoWidth || !video.videoHeight) {
     setBoothStatus('Start the camera first or upload a selfie.');
     return;
   }
@@ -444,33 +517,75 @@ function captureBoothFace() {
   }
 
   context.save();
+  context.translate(canvas.width, 0);
   context.scale(-1, 1);
-  context.drawImage(video, sx, sy, sourceWidth, sourceHeight, -canvas.width, 0, canvas.width, canvas.height);
+  context.drawImage(video, sx, sy, sourceWidth, sourceHeight, 0, 0, canvas.width, canvas.height);
   context.restore();
+
   boothState.faceDataUrl = canvas.toDataURL('image/jpeg', 0.92);
-  setBoothStatus('Face captured. Your clean social player card is ready.');
+  setBoothStatus('Face captured. Your player card is ready.');
   burstConfetti(70);
   renderPlayerCardCanvas();
 }
 
-function handleFaceUpload(event) {
+async function handleFaceUpload(event) {
   const file = event.target.files?.[0];
   if (!file) return;
+
   if (!file.type.startsWith('image/')) {
     setBoothStatus('Please choose an image file.');
+    event.target.value = '';
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = () => {
-    boothState.faceDataUrl = String(reader.result || '');
+  try {
+    setBoothStatus('Loading selfie and building your player card...');
+    stopBoothCamera();
+    $('#booth-video')?.classList.remove('is-live');
     $('#camera-placeholder')?.classList.add('is-hidden');
-    setBoothStatus('Selfie loaded. Your clean social player card is ready.');
+
+    boothState.faceDataUrl = await normalizeSelfieFile(file);
+    setBoothStatus('Selfie loaded. Your player card is ready.');
     burstConfetti(50);
-    renderPlayerCardCanvas();
-  };
-  reader.onerror = () => setBoothStatus('Could not read that image. Try another selfie.');
-  reader.readAsDataURL(file);
+    await renderPlayerCardCanvas();
+  } catch (error) {
+    console.error('Selfie upload failed:', error);
+    setBoothStatus('Could not load that selfie. Try a different photo.');
+    $('#camera-placeholder')?.classList.remove('is-hidden');
+  } finally {
+    event.target.value = '';
+  }
+}
+
+async function normalizeSelfieFile(file) {
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const image = await loadImage(objectUrl);
+    const canvas = document.createElement('canvas');
+    canvas.width = 900;
+    canvas.height = 1080;
+    const context = canvas.getContext('2d');
+
+    const targetRatio = canvas.width / canvas.height;
+    const sourceRatio = image.naturalWidth / image.naturalHeight;
+    let sx = 0;
+    let sy = 0;
+    let sw = image.naturalWidth;
+    let sh = image.naturalHeight;
+
+    if (sourceRatio > targetRatio) {
+      sw = image.naturalHeight * targetRatio;
+      sx = (image.naturalWidth - sw) / 2;
+    } else {
+      sh = image.naturalWidth / targetRatio;
+      sy = (image.naturalHeight - sh) / 2;
+    }
+
+    context.drawImage(image, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', 0.92);
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
 }
 
 function drawRoundedRect(context, x, y, width, height, radius) {

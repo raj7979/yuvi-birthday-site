@@ -2655,3 +2655,48 @@ textarea:focus {
   }
 }
 
+
+
+/* v9 mobile camera + selfie fallback fix */
+.camera-box {
+  align-items: center;
+}
+
+.camera-oval-frame {
+  width: min(285px, 78vw);
+  max-width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 50% 50% 46% 46% / 42% 42% 56% 56%;
+}
+
+#booth-video {
+  background: #03081e;
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
+.upload-selfie {
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-selfie input {
+  cursor: pointer;
+}
+
+@media (max-width: 680px) {
+  .camera-box {
+    min-height: 300px;
+    padding: 14px;
+  }
+
+  .camera-oval-frame {
+    width: min(270px, 76vw);
+  }
+
+  .booth-actions .btn,
+  .booth-actions label.btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
