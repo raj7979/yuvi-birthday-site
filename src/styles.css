@@ -2744,3 +2744,15 @@ textarea:focus {
     margin-bottom: .9rem;
   }
 }
+
+/* v11 social story card preview */
+#generated-player-card {
+  aspect-ratio: 9 / 16;
+  object-fit: contain;
+  max-height: min(76vh, 760px);
+  background: radial-gradient(circle at 50% 20%, rgba(255,216,74,.18), rgba(4,7,21,.95));
+}
+
+.booth-preview-card {
+  align-self: start;
+}

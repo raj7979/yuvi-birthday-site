@@ -501,7 +501,7 @@ function captureBoothFace() {
   const video = $('#booth-video');
   const canvas = $('#booth-capture-canvas');
   if (!video || !canvas || !video.videoWidth || !video.videoHeight) {
-    setBoothStatus('Tap Take selfie or Choose photo to create your card.');
+    setBoothStatus('Use Take selfie or Choose photo. The image will appear on the generated card.');
     return;
   }
 
@@ -547,13 +547,13 @@ async function handleFaceUpload(event) {
   }
 
   try {
-    setBoothStatus('Loading photo and building your player card...');
+    setBoothStatus('Loading photo directly into your player card...');
     stopBoothCamera();
     $('#booth-video')?.classList.remove('is-live');
     $('#camera-placeholder')?.classList.add('is-hidden');
 
     boothState.faceDataUrl = await normalizeSelfieFile(file);
-    setBoothStatus('Photo loaded. Your player card is ready.');
+    setBoothStatus('Photo added to the generated card. Download it or post it to Media Highlights.');
     burstConfetti(50);
     await renderPlayerCardCanvas();
   } catch (error) {
@@ -808,135 +808,6 @@ async function drawFace(context, faceDataUrl, cx, cy, radius) {
   context.ellipse(cx, cy, radius * 0.88, radius * 1.02, 0, 0, Math.PI * 2);
   context.stroke();
   context.restore();
-}
-
-
-async function renderPlayerCardCanvas() {
-  const canvas = $('#generated-player-card');
-  if (!canvas) return;
-
-  const context = canvas.getContext('2d');
-  const width = canvas.width;
-  const height = canvas.height;
-  const team = getTeamPreset(boothState.team);
-  const player = getPlayerPreset(boothState.player);
-
-  context.clearRect(0, 0, width, height);
-
-  const bg = context.createLinearGradient(0, 0, width, height);
-  bg.addColorStop(0, '#06102b');
-  bg.addColorStop(0.28, team.accent || '#2337ff');
-  bg.addColorStop(0.64, '#0b1240');
-  bg.addColorStop(1, '#16051f');
-  context.fillStyle = bg;
-  context.fillRect(0, 0, width, height);
-
-  context.save();
-  context.globalAlpha = 0.28;
-  context.strokeStyle = '#ffffff';
-  context.lineWidth = 3;
-  for (let i = 0; i < 7; i += 1) {
-    context.beginPath();
-    context.arc(width / 2, 720, 210 + i * 88, Math.PI * 1.05, Math.PI * 1.95);
-    context.stroke();
-  }
-  context.restore();
-
-  context.save();
-  context.globalCompositeOperation = 'screen';
-  const beam = context.createLinearGradient(0, 0, width, 900);
-  beam.addColorStop(0, 'rgba(255,255,255,.25)');
-  beam.addColorStop(1, 'rgba(255,255,255,0)');
-  context.fillStyle = beam;
-  context.beginPath();
-  context.moveTo(130, 0);
-  context.lineTo(320, 0);
-  context.lineTo(610, height);
-  context.lineTo(410, height);
-  context.closePath();
-  context.fill();
-  context.restore();
-
-  context.save();
-  context.shadowBlur = 44;
-  context.shadowColor = team.primary;
-  context.strokeStyle = team.primary;
-  context.lineWidth = 18;
-  drawRoundedRect(context, 42, 42, width - 84, height - 84, 64);
-  context.stroke();
-  context.restore();
-
-  context.fillStyle = 'rgba(3, 8, 30, .62)';
-  drawRoundedRect(context, 72, 72, width - 144, height - 144, 52);
-  context.fill();
-
-  context.fillStyle = team.primary;
-  context.font = '900 116px Anton, Impact, sans-serif';
-  context.textAlign = 'left';
-  context.textBaseline = 'top';
-  context.fillText(String(player.rating), 112, 106);
-
-  context.fillStyle = '#fff';
-  context.font = '900 48px Bebas Neue, Impact, sans-serif';
-  context.fillText(player.role.toUpperCase(), 116, 230);
-
-  context.font = '900 82px Inter, sans-serif';
-  context.fillText(team.flag, 116, 290);
-
-  context.textAlign = 'right';
-  context.fillStyle = '#ffffff';
-  context.font = '900 34px Bebas Neue, Impact, sans-serif';
-  context.fillText('YUVAAN WORLD CUP', width - 116, 124);
-  context.fillStyle = team.primary;
-  context.font = '900 68px Anton, Impact, sans-serif';
-  context.fillText('2026', width - 116, 166);
-
-  const cx = width / 2;
-  await drawFace(context, boothState.faceDataUrl, cx, 465, 205);
-  drawJersey(context, cx, 715, team);
-  drawPlayerStyleBadge(context, width - 360, 288, player, team);
-
-  context.save();
-  context.fillStyle = 'rgba(0,0,0,.35)';
-  drawRoundedRect(context, 126, 915, width - 252, 152, 32);
-  context.fill();
-  context.strokeStyle = 'rgba(255,255,255,.24)';
-  context.lineWidth = 3;
-  context.stroke();
-  context.restore();
-
-  context.fillStyle = '#ffffff';
-  drawFitText(context, boothState.player.toUpperCase(), cx, 965, 760, 78, 'Anton, Impact, sans-serif');
-
-  context.fillStyle = team.primary;
-  drawFitText(context, boothState.team.toUpperCase(), cx, 1032, 760, 54, 'Bebas Neue, Impact, sans-serif');
-
-  const statStartY = 1110;
-  player.stats.forEach(([label, value], index) => {
-    const x = 154 + index * 194;
-    context.fillStyle = 'rgba(255,255,255,.1)';
-    drawRoundedRect(context, x, statStartY, 152, 106, 24);
-    context.fill();
-    context.strokeStyle = 'rgba(255,255,255,.18)';
-    context.lineWidth = 2;
-    context.stroke();
-    context.fillStyle = team.primary;
-    context.font = '900 43px Orbitron, monospace';
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    context.fillText(String(value), x + 76, statStartY + 39);
-    context.fillStyle = '#ffffff';
-    context.font = '900 27px Bebas Neue, Impact, sans-serif';
-    context.fillText(label, x + 76, statStartY + 78);
-  });
-
-  drawQrPattern(context, 112, 1236, 82);
-  context.fillStyle = 'rgba(255,255,255,.84)';
-  context.font = '900 25px Bebas Neue, Impact, sans-serif';
-  context.textAlign = 'left';
-  context.fillText('SOCIAL PLAYER CARD', 214, 1254);
-  context.fillStyle = team.primary;
-  context.fillText('DOWNLOAD OR POST TO HIGHLIGHTS', 214, 1288);
 }
 
 
@@ -1364,3 +1235,398 @@ async function boot() {
 }
 
 boot();
+
+
+
+/* v13 clean trading card renderer
+   This intentionally removes the browser face-merge/body-swap approach. The selfie is now rendered
+   as the hero portrait inside a premium football card frame. The selected country controls the full
+   card theme, jersey icon, shorts, socks, flag, accents, and stats. This is much cleaner, faster,
+   and more reliable on phones than trying to paste a face onto a baked JPEG body. */
+const PLAYER_CARD_STYLE = {
+  'Lionel Messi': { jerseyName: 'MESSI', number: '10', label: 'MESSI MODE', role: 'PLAYMAKER', emoji: '🐐', rating: 99, stats: [['PAC', 94], ['SHO', 96], ['PAS', 99], ['DRB', 99]] },
+  'Cristiano Ronaldo': { jerseyName: 'RONALDO', number: '7', label: 'RONALDO MODE', role: 'CAPTAIN', emoji: '🚀', rating: 99, stats: [['PAC', 95], ['SHO', 99], ['JMP', 99], ['PHY', 96]] },
+  'Kylian Mbappé': { jerseyName: 'MBAPPÉ', number: '10', label: 'MBAPPÉ MODE', role: 'SPEEDSTER', emoji: '⚡', rating: 98, stats: [['PAC', 99], ['SHO', 96], ['DRB', 97], ['AGI', 98]] },
+  'Neymar Jr.': { jerseyName: 'NEYMAR', number: '11', label: 'NEYMAR MODE', role: 'SKILL MASTER', emoji: '✨', rating: 97, stats: [['PAC', 94], ['SHO', 93], ['PAS', 95], ['DRB', 99]] }
+};
+
+const CARD_KITS = {
+  'Brazil FC': { flag: '🇧🇷', code: 'BRA', base: '#ffd84a', secondary: '#1fce62', accent: '#1a53ff', text: '#071a57', trim: '#ffffff', pattern: 'diagonal' },
+  'Argentina FC': { flag: '🇦🇷', code: 'ARG', base: '#ffffff', secondary: '#86ddff', accent: '#1f6cff', text: '#102b68', trim: '#ffffff', pattern: 'stripes' },
+  'France FC': { flag: '🇫🇷', code: 'FRA', base: '#143f9f', secondary: '#0b1f5d', accent: '#ff3958', text: '#ffffff', trim: '#ffffff', pattern: 'sash' },
+  'Portugal FC': { flag: '🇵🇹', code: 'POR', base: '#d71935', secondary: '#0f8f55', accent: '#ffd84a', text: '#ffffff', trim: '#0f8f55', pattern: 'split' },
+  'Canada FC': { flag: '🇨🇦', code: 'CAN', base: '#ffffff', secondary: '#e4002b', accent: '#e4002b', text: '#e4002b', trim: '#ffffff', pattern: 'canada' },
+  'England FC': { flag: '🏴', code: 'ENG', base: '#ffffff', secondary: '#f2f5ff', accent: '#dc1f38', text: '#12265b', trim: '#dc1f38', pattern: 'cross' },
+  'Germany FC': { flag: '🇩🇪', code: 'GER', base: '#ffffff', secondary: '#111111', accent: '#ffd84a', text: '#111111', trim: '#e53935', pattern: 'tricolor' },
+  'Mexico FC': { flag: '🇲🇽', code: 'MEX', base: '#0f8f55', secondary: '#ffffff', accent: '#d82935', text: '#ffffff', trim: '#ffffff', pattern: 'split' },
+  'Yuvaan FC': { flag: '⚽', code: 'YUV', base: '#143cff', secondary: '#071a57', accent: '#ffd84a', text: '#ffffff', trim: '#2ee6ff', pattern: 'diagonal' }
+};
+
+function getCardKit(teamName) {
+  return CARD_KITS[teamName] || CARD_KITS['Yuvaan FC'];
+}
+
+function rgba(hex, alpha) {
+  const clean = hex.replace('#', '');
+  const bigint = parseInt(clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function drawCardText(context, text, x, y, maxWidth, size, color = '#ffffff', align = 'center', family = 'Anton, Impact, sans-serif') {
+  context.save();
+  context.fillStyle = color;
+  drawFitText(context, text, x, y, maxWidth, size, family, align);
+  context.restore();
+}
+
+function drawCardBackground(context, width, height, kit) {
+  const bg = context.createLinearGradient(0, 0, width, height);
+  bg.addColorStop(0, '#030616');
+  bg.addColorStop(0.28, '#071a57');
+  bg.addColorStop(0.72, '#11052c');
+  bg.addColorStop(1, '#030616');
+  context.fillStyle = bg;
+  context.fillRect(0, 0, width, height);
+
+  context.save();
+  context.globalAlpha = 0.82;
+  const glow = context.createRadialGradient(width * 0.5, height * 0.32, 20, width * 0.5, height * 0.32, 620);
+  glow.addColorStop(0, rgba(kit.accent, 0.78));
+  glow.addColorStop(0.38, rgba(kit.base, 0.2));
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  context.fillStyle = glow;
+  context.fillRect(0, 0, width, height);
+  context.restore();
+
+  context.save();
+  for (let i = 0; i < 72; i += 1) {
+    const x = (i * 157) % width;
+    const y = (i * 97) % height;
+    context.fillStyle = i % 3 === 0 ? rgba(kit.accent, 0.48) : i % 3 === 1 ? 'rgba(255,216,74,.34)' : 'rgba(255,255,255,.28)';
+    context.beginPath();
+    context.arc(x, y, 2 + (i % 4), 0, Math.PI * 2);
+    context.fill();
+  }
+  context.restore();
+
+  context.save();
+  context.strokeStyle = rgba(kit.accent, 0.9);
+  context.lineWidth = 12;
+  context.shadowColor = kit.accent;
+  context.shadowBlur = 26;
+  drawRoundedRect(context, 34, 34, width - 68, height - 68, 58);
+  context.stroke();
+  context.strokeStyle = 'rgba(255,216,74,.75)';
+  context.lineWidth = 5;
+  drawRoundedRect(context, 58, 58, width - 116, height - 116, 42);
+  context.stroke();
+  context.restore();
+}
+
+function drawPortrait(context, faceDataUrl, x, y, width, height, kit) {
+  context.save();
+  context.shadowColor = rgba(kit.accent, 0.9);
+  context.shadowBlur = 32;
+  const frameGrad = context.createLinearGradient(x, y, x + width, y + height);
+  frameGrad.addColorStop(0, '#ffd84a');
+  frameGrad.addColorStop(0.48, kit.accent);
+  frameGrad.addColorStop(1, '#ffffff');
+  context.fillStyle = frameGrad;
+  drawRoundedRect(context, x - 14, y - 14, width + 28, height + 28, 44);
+  context.fill();
+  context.restore();
+
+  context.save();
+  drawRoundedRect(context, x, y, width, height, 34);
+  context.clip();
+
+  const portraitBg = context.createLinearGradient(x, y, x + width, y + height);
+  portraitBg.addColorStop(0, rgba(kit.base, 0.62));
+  portraitBg.addColorStop(0.45, '#06102b');
+  portraitBg.addColorStop(1, rgba(kit.accent, 0.5));
+  context.fillStyle = portraitBg;
+  context.fillRect(x, y, width, height);
+
+  context.fillStyle = 'rgba(255,255,255,.08)';
+  for (let i = -height; i < width; i += 90) {
+    context.save();
+    context.translate(x + i, y);
+    context.rotate(-0.45);
+    context.fillRect(0, 0, 34, height * 2);
+    context.restore();
+  }
+
+  if (faceDataUrl) {
+    return loadImage(faceDataUrl).then((image) => {
+      const sourceRatio = image.width / image.height;
+      const targetRatio = width / height;
+      let sx = 0;
+      let sy = 0;
+      let sw = image.width;
+      let sh = image.height;
+      if (sourceRatio > targetRatio) {
+        sw = image.height * targetRatio;
+        sx = (image.width - sw) / 2;
+      } else {
+        sh = image.width / targetRatio;
+        sy = Math.max(0, (image.height - sh) * 0.28);
+      }
+      context.filter = 'saturate(1.08) contrast(1.04) brightness(1.03)';
+      context.drawImage(image, sx, sy, sw, sh, x, y, width, height);
+      context.filter = 'none';
+
+      const shade = context.createLinearGradient(x, y, x, y + height);
+      shade.addColorStop(0, 'rgba(0,0,0,.08)');
+      shade.addColorStop(0.72, 'rgba(0,0,0,0)');
+      shade.addColorStop(1, 'rgba(0,0,0,.42)');
+      context.fillStyle = shade;
+      context.fillRect(x, y, width, height);
+      context.restore();
+    }).catch(() => {
+      context.restore();
+      drawPortraitPlaceholder(context, x, y, width, height, kit);
+    });
+  }
+
+  context.restore();
+  drawPortraitPlaceholder(context, x, y, width, height, kit);
+  return Promise.resolve();
+}
+
+function drawPortraitPlaceholder(context, x, y, width, height, kit) {
+  context.save();
+  drawRoundedRect(context, x, y, width, height, 34);
+  context.clip();
+  context.fillStyle = 'rgba(255,255,255,.1)';
+  context.fillRect(x, y, width, height);
+  context.fillStyle = rgba(kit.accent, 0.35);
+  context.beginPath();
+  context.arc(x + width / 2, y + height * 0.38, width * 0.18, 0, Math.PI * 2);
+  context.fill();
+  context.beginPath();
+  context.ellipse(x + width / 2, y + height * 0.78, width * 0.32, height * 0.16, 0, Math.PI, 0, true);
+  context.fill();
+  context.restore();
+
+  drawCardText(context, 'TAKE OR CHOOSE SELFIE', x + width / 2, y + height * 0.5, width - 90, 46, '#ffffff');
+}
+
+function drawCountryJerseyIcon(context, x, y, scale, kit, style) {
+  context.save();
+  context.translate(x, y);
+  context.scale(scale, scale);
+
+  // Jersey
+  context.fillStyle = kit.base;
+  context.strokeStyle = kit.accent;
+  context.lineWidth = 8;
+  context.beginPath();
+  context.moveTo(84, 54);
+  context.lineTo(148, 20);
+  context.lineTo(190, 72);
+  context.lineTo(250, 72);
+  context.lineTo(292, 20);
+  context.lineTo(356, 54);
+  context.lineTo(326, 184);
+  context.lineTo(284, 168);
+  context.lineTo(274, 330);
+  context.lineTo(166, 330);
+  context.lineTo(156, 168);
+  context.lineTo(114, 184);
+  context.closePath();
+  context.fill();
+  context.stroke();
+
+  context.save();
+  context.beginPath();
+  context.moveTo(84, 54);
+  context.lineTo(148, 20);
+  context.lineTo(190, 72);
+  context.lineTo(250, 72);
+  context.lineTo(292, 20);
+  context.lineTo(356, 54);
+  context.lineTo(326, 184);
+  context.lineTo(284, 168);
+  context.lineTo(274, 330);
+  context.lineTo(166, 330);
+  context.lineTo(156, 168);
+  context.lineTo(114, 184);
+  context.closePath();
+  context.clip();
+
+  if (kit.pattern === 'stripes') {
+    context.fillStyle = kit.secondary;
+    [116, 190, 264].forEach((stripeX) => context.fillRect(stripeX, 34, 42, 296));
+  } else if (kit.pattern === 'canada') {
+    context.fillStyle = kit.secondary;
+    context.fillRect(84, 20, 64, 310);
+    context.fillRect(292, 20, 64, 310);
+  } else if (kit.pattern === 'split') {
+    context.fillStyle = kit.secondary;
+    context.fillRect(220, 20, 140, 310);
+  } else if (kit.pattern === 'sash') {
+    context.fillStyle = kit.accent;
+    context.rotate(-0.42);
+    context.fillRect(40, 160, 380, 44);
+  } else if (kit.pattern === 'cross') {
+    context.fillStyle = kit.accent;
+    context.fillRect(202, 20, 36, 310);
+    context.fillRect(84, 150, 272, 36);
+  } else if (kit.pattern === 'tricolor') {
+    context.fillStyle = '#111111';
+    context.fillRect(84, 20, 272, 44);
+    context.fillStyle = '#dd0000';
+    context.fillRect(84, 64, 272, 44);
+    context.fillStyle = '#ffce00';
+    context.fillRect(84, 108, 272, 44);
+  } else {
+    context.fillStyle = rgba(kit.secondary, 0.75);
+    context.rotate(-0.36);
+    context.fillRect(-20, 110, 460, 52);
+  }
+  context.restore();
+
+  // Shorts and socks
+  context.fillStyle = kit.secondary;
+  context.strokeStyle = kit.accent;
+  context.lineWidth = 6;
+  drawRoundedRect(context, 148, 344, 70, 88, 16);
+  context.fill();
+  context.stroke();
+  drawRoundedRect(context, 226, 344, 70, 88, 16);
+  context.fill();
+  context.stroke();
+  context.fillStyle = kit.base;
+  drawRoundedRect(context, 156, 436, 48, 78, 16);
+  context.fill();
+  drawRoundedRect(context, 240, 436, 48, 78, 16);
+  context.fill();
+  context.fillStyle = kit.accent;
+  context.fillRect(156, 454, 48, 10);
+  context.fillRect(240, 454, 48, 10);
+
+  // Jersey text
+  context.fillStyle = kit.text;
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  context.shadowColor = rgba(kit.trim, 0.55);
+  context.shadowBlur = 6;
+  context.font = '900 46px Anton, Impact, sans-serif';
+  context.fillText(style.number, 220, 192);
+  context.font = '900 24px Bebas Neue, Impact, sans-serif';
+  context.fillText(style.jerseyName, 220, 126);
+
+  context.restore();
+}
+
+function drawStats(context, x, y, width, style, kit) {
+  context.save();
+  style.stats.forEach(([label, value], index) => {
+    const rowY = y + index * 58;
+    context.fillStyle = 'rgba(255,255,255,.1)';
+    drawRoundedRect(context, x, rowY, width, 38, 18);
+    context.fill();
+    context.fillStyle = '#ffffff';
+    context.font = '900 25px Orbitron, monospace';
+    context.textAlign = 'left';
+    context.textBaseline = 'middle';
+    context.fillText(label, x + 18, rowY + 20);
+    context.fillStyle = kit.accent;
+    context.fillRect(x + 92, rowY + 12, (width - 160) * (value / 100), 14);
+    context.strokeStyle = 'rgba(255,255,255,.28)';
+    context.strokeRect(x + 92, rowY + 12, width - 160, 14);
+    context.fillStyle = '#ffd84a';
+    context.textAlign = 'right';
+    context.fillText(String(value), x + width - 18, rowY + 20);
+  });
+  context.restore();
+}
+
+async function renderPlayerCardCanvas() {
+  const canvas = $('#generated-player-card');
+  if (!canvas) return;
+
+  canvas.width = 1080;
+  canvas.height = 1350;
+
+  const context = canvas.getContext('2d');
+  const width = canvas.width;
+  const height = canvas.height;
+  const kit = getCardKit(boothState.team);
+  const style = PLAYER_CARD_STYLE[boothState.player] || PLAYER_CARD_STYLE['Lionel Messi'];
+
+  context.clearRect(0, 0, width, height);
+  drawCardBackground(context, width, height, kit);
+
+  // Header
+  drawCardText(context, 'YUVAAN WORLD CUP 2026', 94, 96, 520, 44, '#ffffff', 'left', 'Bebas Neue, Impact, sans-serif');
+  drawCardText(context, `${kit.flag} ${boothState.team.toUpperCase()}`, width - 94, 96, 430, 38, kit.accent, 'right', 'Orbitron, monospace');
+
+  // Rating and player mode block
+  context.save();
+  context.fillStyle = 'rgba(255,216,74,.95)';
+  drawRoundedRect(context, 88, 138, 154, 146, 32);
+  context.fill();
+  context.fillStyle = '#07102d';
+  context.font = '900 74px Anton, Impact, sans-serif';
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  context.fillText(String(style.rating), 165, 196);
+  context.font = '900 30px Bebas Neue, Impact, sans-serif';
+  context.fillText(style.role, 165, 250);
+  context.restore();
+
+  drawCardText(context, style.label, 284, 176, 710, 70, '#ffffff', 'left');
+  drawCardText(context, `${style.emoji} SOCIAL PLAYER CARD`, 288, 242, 700, 34, kit.accent, 'left', 'Orbitron, monospace');
+
+  // Portrait
+  await drawPortrait(context, boothState.faceDataUrl, 116, 320, 520, 610, kit);
+
+  // Country kit icon with full uniform colors
+  context.save();
+  context.shadowColor = rgba(kit.accent, 0.85);
+  context.shadowBlur = 24;
+  context.fillStyle = 'rgba(255,255,255,.07)';
+  drawRoundedRect(context, 688, 320, 300, 430, 38);
+  context.fill();
+  context.restore();
+  drawCountryJerseyIcon(context, 620, 348, 0.86, kit, style);
+
+  // Stats
+  drawStats(context, 690, 800, 300, style, kit);
+
+  // Name strip
+  context.save();
+  const strip = context.createLinearGradient(94, 972, width - 94, 1108);
+  strip.addColorStop(0, rgba(kit.accent, 0.86));
+  strip.addColorStop(0.5, 'rgba(255,216,74,.92)');
+  strip.addColorStop(1, rgba(kit.base, 0.86));
+  context.fillStyle = strip;
+  drawRoundedRect(context, 94, 970, width - 188, 154, 34);
+  context.fill();
+  context.fillStyle = '#06102b';
+  drawFitText(context, `${style.jerseyName} ${style.number}`, width / 2, 1032, width - 260, 78, 'Anton, Impact, sans-serif');
+  context.font = '900 30px Orbitron, monospace';
+  context.textAlign = 'center';
+  context.fillText(`${kit.code} KIT · ${boothState.team.toUpperCase()} · PARTY ENERGY 99`, width / 2, 1090);
+  context.restore();
+
+  // Footer CTA
+  context.save();
+  context.fillStyle = 'rgba(4, 10, 34, .78)';
+  drawRoundedRect(context, 94, 1164, width - 188, 96, 30);
+  context.fill();
+  context.strokeStyle = rgba(kit.accent, 0.74);
+  context.lineWidth = 3;
+  context.stroke();
+  context.fillStyle = '#ffffff';
+  context.font = '900 36px Bebas Neue, Impact, sans-serif';
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  context.fillText(boothState.faceDataUrl ? 'READY TO DOWNLOAD OR POST TO HIGHLIGHTS' : 'TAKE OR CHOOSE A SELFIE TO FINISH YOUR CARD', width / 2, 1213);
+  context.restore();
+}
+
