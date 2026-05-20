@@ -1133,7 +1133,7 @@ function updateGalleryPreview(photos, prepend = false) {
     .map((photo) => photo.public_url)
     .filter((url) => url && !current.includes(url))
     .slice(0, 4)
-    .map((url) => `<img src="${escapeHtml(url)}" alt="Uploaded media highlight" />`)
+    .map((url) => `<img class="gallery-lightbox-trigger" src="${escapeHtml(url)}" alt="Uploaded media highlight" title="Tap to view full size" loading="lazy" />`)
     .join('');
 
   if (!newImages) return;
@@ -1150,9 +1150,68 @@ function addPhotoCard(url, caption, prepend = true) {
 
   const card = document.createElement('article');
   card.className = 'photo-card';
-  card.innerHTML = `<img src="${escapeHtml(url)}" alt="Media highlight upload" loading="lazy" /><p>${escapeHtml(caption)}</p>`;
+  card.innerHTML = `<button class="photo-lightbox-button" type="button" aria-label="View full size media highlight"><img class="gallery-lightbox-trigger" src="${escapeHtml(url)}" alt="Media highlight upload" loading="lazy" title="Tap to view full size" /></button><p>${escapeHtml(caption)}</p>`;
   if (prepend) grid.prepend(card);
   else grid.append(card);
+}
+
+
+function setupPhotoLightbox() {
+  const modal = document.createElement('div');
+  modal.className = 'photo-lightbox';
+  modal.setAttribute('aria-hidden', 'true');
+  modal.innerHTML = `
+    <div class="photo-lightbox-backdrop" data-close-lightbox></div>
+    <div class="photo-lightbox-dialog" role="dialog" aria-modal="true" aria-label="Full size media highlight">
+      <button class="photo-lightbox-close" type="button" data-close-lightbox aria-label="Close full size photo">×</button>
+      <img class="photo-lightbox-image" alt="Full size media highlight" />
+      <p class="photo-lightbox-caption"></p>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  const image = modal.querySelector('.photo-lightbox-image');
+  const caption = modal.querySelector('.photo-lightbox-caption');
+
+  function openLightbox(sourceImage) {
+    if (!sourceImage?.src) return;
+    image.src = sourceImage.src;
+    image.alt = sourceImage.alt || 'Full size media highlight';
+    const cardCaption = sourceImage.closest('.photo-card')?.querySelector('p')?.textContent?.trim();
+    caption.textContent = cardCaption || sourceImage.getAttribute('data-caption') || 'Media highlight';
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('lightbox-open');
+  }
+
+  function closeLightbox() {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('lightbox-open');
+    window.setTimeout(() => {
+      if (!modal.classList.contains('is-open')) image.removeAttribute('src');
+    }, 180);
+  }
+
+  document.addEventListener('click', (event) => {
+    const closeTarget = event.target.closest('[data-close-lightbox]');
+    if (closeTarget) {
+      closeLightbox();
+      return;
+    }
+
+    const thumb = event.target.closest('#photo-grid img, .gallery-panel .thumbs img');
+    if (thumb) {
+      event.preventDefault();
+      openLightbox(thumb);
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+      closeLightbox();
+    }
+  });
 }
 
 function setupConfetti() {
@@ -1222,6 +1281,7 @@ async function boot() {
   setupPhotoBooth();
   setupPenaltyGame();
   setupRsvpForm();
+  setupPhotoLightbox();
   setupPhotoSection();
 
   try {
