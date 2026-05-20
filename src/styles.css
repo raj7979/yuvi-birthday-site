@@ -2700,3 +2700,47 @@ textarea:focus {
     justify-content: center;
   }
 }
+
+
+/* v10 native mobile selfie flow */
+.native-selfie-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.primary-selfie-action {
+  box-shadow: 0 18px 36px rgba(255, 210, 65, 0.34), 0 0 0 1px rgba(255,255,255,0.18) inset;
+}
+
+.camera-box {
+  min-height: 250px;
+}
+
+.camera-oval-frame {
+  display: none !important;
+}
+
+.camera-placeholder {
+  inset: 16px;
+  opacity: 1;
+}
+
+.camera-placeholder.is-hidden {
+  opacity: 0;
+}
+
+@media (max-width: 720px) {
+  .native-selfie-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .native-selfie-actions .btn,
+  .native-selfie-actions label.btn {
+    min-height: 54px;
+    font-size: 1rem;
+  }
+
+  .camera-box {
+    min-height: 210px;
+    margin-bottom: .9rem;
+  }
+}

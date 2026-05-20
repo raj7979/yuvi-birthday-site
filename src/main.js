@@ -355,11 +355,19 @@ function setupPhotoBooth() {
         choice.setAttribute('aria-pressed', String(selected));
       });
       updateBoothSelectionSummary();
-      setBoothStatus(`${boothState.player} style selected. Capture a selfie to generate your clean card.`);
+      setBoothStatus(`${boothState.player} style selected. Take a selfie or choose a photo to generate your card.`);
       renderPlayerCardCanvas();
     });
   });
 
+  // Mobile first photo flow: use the phone's native camera/photo picker instead of getUserMedia.
+  // This avoids NotAllowedError in embedded browsers and locked down mobile settings.
+  $('#take-selfie-upload')?.addEventListener('click', (event) => { event.currentTarget.value = ''; });
+  $('#take-selfie-upload')?.addEventListener('change', handleFaceUpload);
+  $('#choose-photo-upload')?.addEventListener('click', (event) => { event.currentTarget.value = ''; });
+  $('#choose-photo-upload')?.addEventListener('change', handleFaceUpload);
+
+  // Legacy camera buttons may exist in older cached markup, so keep these listeners harmless.
   $('#start-camera')?.addEventListener('click', startBoothCamera);
   $('#capture-face')?.addEventListener('click', captureBoothFace);
   $('#face-upload')?.addEventListener('click', (event) => { event.currentTarget.value = ''; });
@@ -493,7 +501,7 @@ function captureBoothFace() {
   const video = $('#booth-video');
   const canvas = $('#booth-capture-canvas');
   if (!video || !canvas || !video.videoWidth || !video.videoHeight) {
-    setBoothStatus('Start the camera first or upload a selfie.');
+    setBoothStatus('Tap Take selfie or Choose photo to create your card.');
     return;
   }
 
@@ -539,18 +547,18 @@ async function handleFaceUpload(event) {
   }
 
   try {
-    setBoothStatus('Loading selfie and building your player card...');
+    setBoothStatus('Loading photo and building your player card...');
     stopBoothCamera();
     $('#booth-video')?.classList.remove('is-live');
     $('#camera-placeholder')?.classList.add('is-hidden');
 
     boothState.faceDataUrl = await normalizeSelfieFile(file);
-    setBoothStatus('Selfie loaded. Your player card is ready.');
+    setBoothStatus('Photo loaded. Your player card is ready.');
     burstConfetti(50);
     await renderPlayerCardCanvas();
   } catch (error) {
     console.error('Selfie upload failed:', error);
-    setBoothStatus('Could not load that selfie. Try a different photo.');
+    setBoothStatus('Could not load that photo. Try a different one.');
     $('#camera-placeholder')?.classList.remove('is-hidden');
   } finally {
     event.target.value = '';

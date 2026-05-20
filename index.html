@@ -120,7 +120,7 @@
               </div>
 
               <div class="booth-step camera-step">
-                <h3><span>3</span> Capture your face</h3>
+                <h3><span>3</span> Take or choose your selfie</h3>
                 <div class="camera-box">
                   <div class="camera-oval-frame" aria-label="Oval face camera guide">
                     <video id="booth-video" autoplay muted playsinline webkit-playsinline></video>
@@ -128,16 +128,15 @@
                   </div>
                   <canvas id="booth-capture-canvas" width="720" height="900" hidden></canvas>
                   <div class="camera-placeholder" id="camera-placeholder">
-                    <strong>Oval face preview</strong>
-                    <span>Center your face inside the oval guide, then tap Capture.</span>
+                    <strong>Selfie preview</strong>
+                    <span>Tap Take selfie to open your camera, or Choose photo from your gallery.</span>
                   </div>
                 </div>
-                <div class="booth-actions">
-                  <button class="btn btn-small btn-gold" type="button" id="start-camera">Start camera</button>
-                  <button class="btn btn-small btn-pink" type="button" id="capture-face">Capture face</button>
-                  <label class="btn btn-small btn-ghost upload-selfie">Upload selfie<input type="file" id="face-upload" accept="image/*" capture="user" /></label>
+                <div class="booth-actions native-selfie-actions">
+                  <label class="btn btn-small btn-gold upload-selfie primary-selfie-action">Take selfie<input type="file" id="take-selfie-upload" accept="image/*" capture="user" /></label>
+                  <label class="btn btn-small btn-ghost upload-selfie">Choose photo<input type="file" id="choose-photo-upload" accept="image/*" /></label>
                 </div>
-                <p class="booth-status" id="booth-status">Your selfie stays in this browser until you choose to post the finished card to Media Highlights.</p>
+                <p class="booth-status" id="booth-status">Use your phone camera or choose a photo. Your selfie stays in this browser unless you post the finished card to Media Highlights.</p>
               </div>
             </div>
 
