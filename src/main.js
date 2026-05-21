@@ -1,7 +1,7 @@
 import './styles.css';
 import { createClient } from '@supabase/supabase-js';
 
-const EVENT_START = new Date('2026-06-06T14:00:00-04:00');
+const EVENT_START = new Date('2026-06-06T13:30:00-04:00');
 const PHOTO_BUCKET = import.meta.env.VITE_SUPABASE_PHOTO_BUCKET || 'yuvi-party-photos';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';

@@ -43,6 +43,7 @@
           <a href="#schedule">Schedule</a>
           <a href="#squad">Squad</a>
           <a href="#photos">Gallery</a>
+          <a href="#trophy-room">Trophy Room</a>
         </nav>
 
         <div class="top-pills" aria-hidden="true">
@@ -64,18 +65,27 @@
             <p class="welcome-stars">★ ★ Welcome to ★ ★</p>
             <h1>YUVAAN</h1>
             <h2>World Cup <span>2026</span></h2>
-            <p class="tagline">Road to Glory</p>
+            <p class="tagline">The ultimate birthday celebration</p>
 
             <div class="match-strip" id="schedule" aria-label="Birthday party details">
               <div><span>📅</span><small>Matchday</small><strong>Saturday<br />June 6, 2026</strong></div>
-              <div><span>⏱️</span><small>Kickoff</small><strong>2:00 PM</strong></div>
+              <div><span>⏱️</span><small>Kickoff</small><strong>1:30 PM</strong></div>
               <div><span>📍</span><small>Venue</small><strong>Rain or Shine<br />Play Centre</strong></div>
+            </div>
+
+            <div class="venue-address-card" id="venue">
+              <span class="venue-icon">📍</span>
+              <div>
+                <strong>Rain or Shine Play Centre</strong>
+                <p>55 Broadway St, Tillsonburg, ON N4G 3P4</p>
+              </div>
             </div>
 
             <div class="hero-actions">
               <button class="btn btn-gold open-rsvp" type="button">RSVP Now</button>
-              <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=Rain%20or%20Shine%20Play%20Centre%2055%20Broadway%20St%20Tillsonburg%20ON%20N4G%203P4" target="_blank" rel="noreferrer">Open map</a>
+              <a class="btn btn-map" href="https://www.google.com/maps/search/?api=1&query=Rain%20or%20Shine%20Play%20Centre%2055%20Broadway%20St%20Tillsonburg%20ON%20N4G%203P4" target="_blank" rel="noreferrer">Open Map</a>
             </div>
+            <p class="scan-note">Scan QR to enter</p>
           </div>
         </section>
 
@@ -117,10 +127,19 @@
                 </div>
               </div>
 
-              <div class="booth-step camera-step compact-selfie-step">
+              <div class="booth-step camera-step">
                 <h3><span>3</span> Take or choose your selfie</h3>
-                <p class="booth-step-note">Your photo will appear directly inside the generated player card on the right.</p>
-                <canvas id="booth-capture-canvas" width="720" height="900" hidden></canvas>
+                <div class="camera-box">
+                  <div class="camera-oval-frame" aria-label="Oval face camera guide">
+                    <video id="booth-video" autoplay muted playsinline webkit-playsinline></video>
+                    <span class="face-guide" aria-hidden="true"></span>
+                  </div>
+                  <canvas id="booth-capture-canvas" width="720" height="900" hidden></canvas>
+                  <div class="camera-placeholder" id="camera-placeholder">
+                    <strong>Selfie preview</strong>
+                    <span>Tap Take selfie to open your camera, or Choose photo from your gallery.</span>
+                  </div>
+                </div>
                 <div class="booth-actions native-selfie-actions">
                   <label class="btn btn-small btn-gold upload-selfie primary-selfie-action">Take selfie<input type="file" id="take-selfie-upload" accept="image/*" capture="user" /></label>
                   <label class="btn btn-small btn-ghost upload-selfie">Choose photo<input type="file" id="choose-photo-upload" accept="image/*" /></label>
@@ -185,6 +204,19 @@
             </div>
             <ul class="guest-list" id="guest-list"><li>No players yet.</li></ul>
           </details>
+        </section>
+
+        <section class="panel trophy-panel" id="trophy-room">
+          <div class="panel-heading"><span>🏆</span><h2>Trophy room</h2></div>
+          <p class="panel-subtitle">Unlock achievements</p>
+          <div class="achievement-grid">
+            <article class="unlocked"><span>👟</span><strong>First RSVP</strong><small>Join the squad</small></article>
+            <article class="unlocked"><span>⚽</span><strong>Goal Machine</strong><small>Score a goal</small></article>
+            <article class="unlocked"><span>🔥</span><strong>Fast Striker</strong><small>RSVP in 10s</small></article>
+            <article><span>🏆</span><strong>Team Player</strong><small>Invite friends</small></article>
+            <article><span>🎉</span><strong>Party Legend</strong><small>Be at the party</small></article>
+          </div>
+          <button class="btn btn-small btn-ghost" type="button">View all achievements</button>
         </section>
 
         <section class="panel live-count-panel">
